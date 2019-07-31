@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Hole
+  - Wall
   layers:
   - Default
   - TransparentFX

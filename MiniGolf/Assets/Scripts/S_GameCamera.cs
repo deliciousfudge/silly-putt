@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameCamera : MonoBehaviour
+public class S_GameCamera : MonoBehaviour
 {
     public GameObject m_Ball;
 
@@ -18,7 +18,7 @@ public class GameCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        m_Camera.transform.position = m_Ball.transform.position + m_v3CameraOffset;
+        m_Camera.transform.position = Vector3.Lerp(m_Ball.transform.position, m_Ball.transform.position + m_v3CameraOffset, 2.0f);
         m_Camera.transform.position = new Vector3(m_Camera.transform.position.x, 4.0f, m_Camera.transform.position.z);
     }
 }

@@ -5,14 +5,17 @@ using UnityEngine;
 public class S_Ball : MonoBehaviour
 {
     public Camera Camera;
+    public GameObject GameManager;
+    public Vector3 m_v3StartingPos = new Vector3(-1.5f, 0.45f, -8.0f);
+    public bool m_bIsRoundInProgress = false;
+    public bool m_bIsBallMoving = false;
 
-    private Rigidbody RB;
-    private bool bCanBallBeHit = true;
+    private Rigidbody BallRigidBody;
     private S_GameCamera CameraScript;
+    private S_GameManager GameManagerScript;
     private Vector3 v3Direction = new Vector3(0.0f, 0.0f, 0.0f);
     private float fMaxSpeed = 200.0f;
     private float fCurrentSpeed = 0.0f;
-    private float fFrictionFactor = 0.05f;
 
     private bool bIsHoldingLeftMouseButtonDown = false;
     private Vector3 v3MouseLocation = new Vector3(0.0f, 0.0f, 0.0f);
@@ -20,68 +23,66 @@ public class S_Ball : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        print("Get in the hole!");
-
-        RB = GetComponent<Rigidbody>();
+        // Set script references
+        BallRigidBody = GetComponent<Rigidbody>();
         CameraScript = Camera.GetComponent<S_GameCamera>();
+        GameManagerScript = GameManager.GetComponent<S_GameManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (bCanBallBeHit)
+        if (m_bIsRoundInProgress)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (m_bIsBallMoving)
             {
-                print("Left button clicked");
-
-                bIsHoldingLeftMouseButtonDown = true;
-            }
-
-            if (bIsHoldingLeftMouseButtonDown)
-            {
-                v3MouseLocation = cursorOnTransform;
-
-                v3MouseLocation.y = 0.0f;
-
-                Debug.DrawLine(RB.position, v3MouseLocation);
-                print("Ball pos");
-                print(transform.position);
-                print("Mouse pos");
-                print(v3MouseLocation);
-            }
-
-            if (Input.GetMouseButtonUp(0))
-            {
-                bIsHoldingLeftMouseButtonDown = false;
-
-                if (v3MouseLocation != new Vector3(0.0f, 0.0f, 0.0f))
+                // If the velocity of the ball has reduced to a significantly slow amount
+                if (BallRigidBody.velocity.sqrMagnitude < 0.7f)
                 {
-                    Vector3 SwingDirection = transform.position - v3MouseLocation;
-
-                    fCurrentSpeed = Mathf.Clamp(SwingDirection.magnitude, fMaxSpeed * 0.1f, fMaxSpeed);
-
-                    v3Direction = SwingDirection.normalized;
-
-                    v3Direction.y = 0.0f;
-
-                    RB.AddForceAtPosition(v3Direction * fCurrentSpeed, RB.position, ForceMode.Impulse);
-
-                    bCanBallBeHit = false;
+                    // Remove all velocity from the ball
+                    RemoveVelocity();
+                }
+            }
+            else
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    bIsHoldingLeftMouseButtonDown = true;
                 }
 
-                v3MouseLocation = new Vector3(0.0f, 0.0f, 0.0f);
-            }
-        }
-        else
-        {
-            //print(RB.velocity.sqrMagnitude);
+                if (bIsHoldingLeftMouseButtonDown)
+                {
+                    v3MouseLocation = cursorOnTransform;
 
-            if (RB.velocity.sqrMagnitude < 0.7f)
-            {
-                RB.velocity = Vector3.zero;
-                RB.angularVelocity = Vector3.zero;
-                bCanBallBeHit = true;
+                    v3MouseLocation.y = 0.0f;
+
+                    Debug.DrawLine(BallRigidBody.position, v3MouseLocation);
+                }
+
+                if (Input.GetMouseButtonUp(0))
+                {
+                    bIsHoldingLeftMouseButtonDown = false;
+
+                    if (v3MouseLocation != new Vector3(0.0f, 0.0f, 0.0f))
+                    {
+                        Vector3 SwingDirection = transform.position - v3MouseLocation;
+
+                        fCurrentSpeed = Mathf.Clamp(SwingDirection.magnitude, fMaxSpeed * 0.1f, fMaxSpeed);
+
+                        v3Direction = SwingDirection.normalized;
+
+                        v3Direction.y = 0.0f;
+
+                        BallRigidBody.AddForceAtPosition(v3Direction * fCurrentSpeed, BallRigidBody.position, ForceMode.Impulse);
+
+                        m_bIsBallMoving = true;
+
+                        // Unlock the small steps achievement (for hitting the ball)
+                        PlayerPrefs.SetInt("Small Steps", 0);
+                    }
+
+                    v3MouseLocation = new Vector3(0.0f, 0.0f, 0.0f);
+                }
             }
         }
     }
@@ -90,15 +91,13 @@ public class S_Ball : MonoBehaviour
     {
         if (other.gameObject.tag == "Hole")
         {
-            print("Dancin'!");
+            RemoveVelocity();
 
-            bCanBallBeHit = false;
+            BallRigidBody.detectCollisions = false;
 
-            RB.velocity = Vector3.zero;
-            RB.angularVelocity = Vector3.zero;
-            RB.detectCollisions = false;
+            CameraScript.m_bIsFollowingBall = false;
 
-            CameraScript.bIsFollowingBall = false;
+            GameManagerScript.EndRound();
         }
     }
 
@@ -106,8 +105,6 @@ public class S_Ball : MonoBehaviour
     {
         if (other.gameObject.tag == "Wall")
         {
-
-            print("Ah my face!");
         }
     }
 
@@ -149,5 +146,36 @@ public class S_Ball : MonoBehaviour
         //print(transform.position);
         //print("Mouse pos");
         //print(v3MouseLocation);
+    }
+
+    public void ResetState()
+    {
+        RemoveVelocity();
+        SetCollision(true);
+        ResetPosition();
+    }
+
+    private void RemoveVelocity()
+    {
+        BallRigidBody.velocity = Vector3.zero;
+        BallRigidBody.angularVelocity = Vector3.zero;
+        m_bIsBallMoving = false;
+    }
+
+    private void SetCollision(bool _bIsColliding)
+    {
+        if (_bIsColliding)
+        {
+            BallRigidBody.detectCollisions = true;
+        }
+        else
+        {
+            BallRigidBody.detectCollisions = false;
+        }
+    }
+
+    private void ResetPosition()
+    {
+        BallRigidBody.transform.position = m_v3StartingPos;
     }
 }

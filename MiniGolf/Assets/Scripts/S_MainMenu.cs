@@ -56,16 +56,16 @@ public class S_MainMenu : MonoBehaviour
     {
         if (!m_bIsUserAuthenticated)
         {
-            Social.localUser.Authenticate((bool _bSuccess) =>
+            Social.localUser.Authenticate((bool success) =>
             {
-                if (_bSuccess)
+                if (success)
                 {
                     Debug.Log("You've successfully logged in");
                     m_bIsUserAuthenticated = true;
                 }
                 else
                 {
-                    Debug.Log("Login failed for some reason");
+                    Debug.Log("Login attempt was unsuccessful");
                 }
             });
         }

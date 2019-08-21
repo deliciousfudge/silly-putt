@@ -18,6 +18,7 @@ public class S_GameManager : MonoBehaviour
     public GameObject Ball;
     public GameObject Camera;
 
+    private int m_iCurrentLevelID;
     private int m_iRoundCount;
 
     // Script references
@@ -36,13 +37,13 @@ public class S_GameManager : MonoBehaviour
     private void Start()
     {
         // Determine if the user has purchased the remove ads option
-        if (PlayerPrefs.GetInt("ShouldGameDisplayAds") == 0) // 0 is false and 1 is true
+        if (PlayerPrefs.GetInt("ShouldGameDisplayAds") == 0) // 0 is true and 1 is false
         {
-            m_bShouldGameDisplayAds = false;
+            m_bShouldGameDisplayAds = true;
         }
         else
         {
-            m_bShouldGameDisplayAds = true; 
+            m_bShouldGameDisplayAds = false; 
         }
 
         // Set references to relevant game object scripts
@@ -70,6 +71,8 @@ public class S_GameManager : MonoBehaviour
     public void StartRound()
     {
         print("Start the round");
+
+        m_iCurrentLevelID = PlayerPrefs.GetInt("CurrentLevel");
 
         // Increment the round count
         m_iRoundCount = PlayerPrefs.GetInt("RoundCount");
@@ -100,8 +103,60 @@ public class S_GameManager : MonoBehaviour
             // On every alternate round, display an ad to the screen
             if (m_iRoundCount % 2 == 0)
             {
+                print("Show an ad");
                 ShowAd();
             }
+        }
+        else
+        {
+            print("Shouldn't show ads");
+        }
+
+        switch(m_iCurrentLevelID)
+        {
+            case 1:
+            {
+                // If the player has not completed the moving on up achievement (For completing level 1)
+                if (PlayerPrefs.GetInt("Moving On Up") == 1) // 0 is true and 1 is false
+                {
+                    // Store that the player has completed the achievement
+                    PlayerPrefs.SetInt("Moving On Up", 0);
+                    
+                    // Tell Google Play that the player has completed the achievement
+                    Social.ReportProgress(SillyPuttAchievements.achievement_moving_on_up, 100, (bool _bSuccess) => { });
+                }
+            }
+            break;
+
+            case 2:
+            {
+                // If the player has not completed the steady as she goes achievement (For completing level 2)
+                if (PlayerPrefs.GetInt("Steady As She Goes") == 1) // 0 is true and 1 is false
+                {
+                    // Store that the player has completed the achievement
+                    PlayerPrefs.SetInt("Steady As She Goes", 0);
+
+                    // Tell Google Play that the player has completed the achievement
+                    Social.ReportProgress(SillyPuttAchievements.achievement_steady_as_she_goes, 100, (bool _bSuccess) => { });
+                }
+            }
+            break;
+
+            case 3:
+            {
+                // If the player has not completed the moving on up achievement (For completing level 3)
+                if (PlayerPrefs.GetInt("The End Of The Road") == 1) // 0 is true and 1 is false
+                {
+                    // Store that the player has completed the achievement
+                    PlayerPrefs.SetInt("The End Of The Road", 0);
+
+                    // Tell Google Play that the player has completed the achievement
+                    Social.ReportProgress(SillyPuttAchievements.achievement_the_end_of_the_road, 100, (bool _bSuccess) => { });
+                }
+            }
+            break;
+
+            default:break;
         }
 
         DisplayEndLevelUI();

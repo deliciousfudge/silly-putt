@@ -4,58 +4,79 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
+using UnityEngine.SocialPlatforms;
+
+using GooglePlayGames;
+using GooglePlayGames.BasicApi;
 
 public class S_MainMenu : MonoBehaviour
 {
     // Main Menu Objects
-    public GameObject MainMenu;
-    public Button PlayButton;
-    public Button AchievementsButton;
-    public Button ExitButton;
-    public Button TwitterButton;
+    public GameObject MMContainer;
+    public Button MMPlayButton;
+    public Button MMAchievementsButton;
+    public Button MMExitButton;
+    public Button MMTwitterButton;
 
     // Level Select Objects
-    public GameObject LevelSelectMenu;
-    public Button Level1Button;
+    public GameObject LSContainer;
+    public Button LSLevel1Button;
+    public Button LSLevel2Button;
+    public Button LSLevel3Button;
 
     // Achievements Menu Objects
-    public GameObject AchievementsMenu;
+    public GameObject AMContainer;
+    public Button AMBackButton;
+
+    // Google Play integration
+    bool m_bIsUserAuthenticated = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        PlayGamesPlatform.Activate();
+        PlayGamesPlatform.DebugLogEnabled = true;
+
         GoToMainMenu();
 
         // Add listener to main menu buttons
-		PlayButton.onClick.AddListener(() => {GoToLevelSelectMenu();});
-        AchievementsButton.onClick.AddListener(() => {GoToAchievementsMenu();});
-        ExitButton.onClick.AddListener(() => {ExitGame();});
-        TwitterButton.onClick.AddListener(() => { OpenTwitter(); });
+		MMPlayButton.onClick.AddListener(() => {GoToLevelSelectMenu();});
+        MMAchievementsButton.onClick.AddListener(() => { OpenAchievements(); });
+        MMExitButton.onClick.AddListener(() => {ExitGame();});
+        MMTwitterButton.onClick.AddListener(() => { OpenTwitter(); });
 
         // Add listener to level select buttons
-        Level1Button.onClick.AddListener(() => { GoToLevel(1); });
+        LSLevel1Button.onClick.AddListener(() => { GoToLevel(1); });
+        LSLevel2Button.onClick.AddListener(() => { GoToLevel(2); });
+        LSLevel3Button.onClick.AddListener(() => { GoToLevel(3); });
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (!m_bIsUserAuthenticated)
+        {
+            Social.localUser.Authenticate((bool _bSuccess) =>
+            {
+                if (_bSuccess)
+                {
+                    Debug.Log("You've successfully logged in");
+                    m_bIsUserAuthenticated = true;
+                }
+                else
+                {
+                    Debug.Log("Login failed for some reason");
+                }
+            });
+        }
     }
 	
 	void GoToLevelSelectMenu()
 	{
 		print("LevelSelect");
-        MainMenu.SetActive(false);
-        LevelSelectMenu.SetActive(true);
-        AchievementsMenu.SetActive(false);
-    }
-	
-	void GoToAchievementsMenu()
-	{
-		print("Achievements");
-        MainMenu.SetActive(false);
-        LevelSelectMenu.SetActive(false);
-        AchievementsMenu.SetActive(true);
+        MMContainer.SetActive(false);
+        LSContainer.SetActive(true);
+        AMContainer.SetActive(false);
     }
 	
 	void ExitGame()
@@ -66,14 +87,15 @@ public class S_MainMenu : MonoBehaviour
 
     void GoToMainMenu()
     {
-        MainMenu.SetActive(true);
-        LevelSelectMenu.SetActive(false);
-        AchievementsMenu.SetActive(false);
+        MMContainer.SetActive(true);
+        LSContainer.SetActive(false);
+        AMContainer.SetActive(false);
     }
 
-    void GoToLevel(int _LevelNumber)
+    void GoToLevel(int _iLevelNumber)
     {
-        string sLevelName = "Level" + _LevelNumber;
+        string sLevelName = "Level" + _iLevelNumber;
+        PlayerPrefs.SetInt("CurrentLevel", _iLevelNumber);
         SceneManager.LoadScene(sLevelName);
     }
 
@@ -85,5 +107,20 @@ public class S_MainMenu : MonoBehaviour
         string sAppStoreLink = "https://play.google.com/store/apps/details?id=com.growlgamesstudio.pizZapMani"; // The Play Store link of the game
 
         Application.OpenURL(sTwitterAddress + "?text=" +  UnityWebRequest.EscapeURL(sMessage + "\n\n" + sAppStoreDescription + sAppStoreLink));
+    }
+
+    public void OpenAchievements()
+    {
+        Social.localUser.Authenticate((bool _bSuccess) => {
+            if (_bSuccess)
+            {
+                Debug.Log("You've successfully logged in");
+                Social.ShowAchievementsUI();
+            }
+            else
+            {
+                Debug.Log("Login failed for some reason");
+            }
+        });
     }
 }

@@ -257,7 +257,7 @@ PlayerSettings:
   AndroidTargetArchitectures: 3
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: D:/Users/Roger.Smi7429/Desktop/mini-golf.keystore
+  AndroidKeystoreName: D:/Users/Roger.Smi7429/Downloads/mini-golf.keystore
   AndroidKeyaliasName: minigolf
   AndroidBuildApkPerCpuArchitecture: 0
   AndroidTVCompatibility: 0

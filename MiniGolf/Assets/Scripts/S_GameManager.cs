@@ -37,13 +37,13 @@ public class S_GameManager : MonoBehaviour
     private void Start()
     {
         // Determine if the user has purchased the remove ads option
-        if (PlayerPrefs.GetInt("ShouldGameDisplayAds") == 0) // 0 is true and 1 is false
+        if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No") 
         {
-            m_bShouldGameDisplayAds = true;
+            m_bShouldGameDisplayAds = false;
         }
         else
         {
-            m_bShouldGameDisplayAds = false; 
+            m_bShouldGameDisplayAds = true; 
         }
 
         // Set references to relevant game object scripts
@@ -112,15 +112,17 @@ public class S_GameManager : MonoBehaviour
             print("Shouldn't show ads");
         }
 
+        print("Current level is " + m_iCurrentLevelID);
+
         switch(m_iCurrentLevelID)
         {
             case 1:
-            {
+            {               
                 // If the player has not completed the moving on up achievement (For completing level 1)
-                if (PlayerPrefs.GetInt("Moving On Up") == 1) // 0 is true and 1 is false
+                if (PlayerPrefs.GetString("Moving On Up") != "Unlocked") 
                 {
                     // Store that the player has completed the achievement
-                    PlayerPrefs.SetInt("Moving On Up", 0);
+                    PlayerPrefs.SetString("Moving On Up", "Unlocked");
                     
                     // Tell Google Play that the player has completed the achievement
                     Social.ReportProgress(SillyPuttAchievements.achievement_moving_on_up, 100, (bool _bSuccess) => { });
@@ -131,10 +133,10 @@ public class S_GameManager : MonoBehaviour
             case 2:
             {
                 // If the player has not completed the steady as she goes achievement (For completing level 2)
-                if (PlayerPrefs.GetInt("Steady As She Goes") == 1) // 0 is true and 1 is false
+                if (PlayerPrefs.GetString("Steady As She Goes") != "Unlocked") // 0 is true and 1 is false
                 {
                     // Store that the player has completed the achievement
-                    PlayerPrefs.SetInt("Steady As She Goes", 0);
+                    PlayerPrefs.SetString("Steady As She Goes", "Unlocked");
 
                     // Tell Google Play that the player has completed the achievement
                     Social.ReportProgress(SillyPuttAchievements.achievement_steady_as_she_goes, 100, (bool _bSuccess) => { });
@@ -145,10 +147,10 @@ public class S_GameManager : MonoBehaviour
             case 3:
             {
                 // If the player has not completed the moving on up achievement (For completing level 3)
-                if (PlayerPrefs.GetInt("The End Of The Road") == 1) // 0 is true and 1 is false
+                if (PlayerPrefs.GetString("The End Of The Road") != "Unlocked") // 0 is true and 1 is false
                 {
                     // Store that the player has completed the achievement
-                    PlayerPrefs.SetInt("The End Of The Road", 0);
+                    PlayerPrefs.SetString("The End Of The Road", "Unlocked");
 
                     // Tell Google Play that the player has completed the achievement
                     Social.ReportProgress(SillyPuttAchievements.achievement_the_end_of_the_road, 100, (bool _bSuccess) => { });

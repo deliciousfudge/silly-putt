@@ -11,25 +11,30 @@ using GooglePlayGames.BasicApi;
 
 public class S_MainMenu : MonoBehaviour
 {
-    // Main Menu Objects
-    public GameObject MMContainer;
-    public Button MMPlayButton;
-    public Button MMAchievementsButton;
-    public Button MMExitButton;
-    public Button MMTwitterButton;
+    [Header("Main Menu Objects")]
+    public GameObject m_MainMenuContainer;
+    public Button m_Button_Play;
+    public Button m_Button_Achievements;
+    public Button m_Button_Exit;
+    public Button m_Button_Twitter;
+    public Button m_Button_IAP; // In App Purchases
 
-    // Level Select Objects
-    public GameObject LSContainer;
-    public Button LSLevel1Button;
-    public Button LSLevel2Button;
-    public Button LSLevel3Button;
+    [Header("Level Select Objects")]
+    public GameObject m_LevelSelectContainer;
+    public Button m_Button_Level1;
+    public Button m_Button_Level2;
+    public Button m_Button_Level3;
+    public Button m_Button_LevelSelectToMainMenu;
 
-    // Achievements Menu Objects
-    public GameObject AMContainer;
-    public Button AMBackButton;
+    [Header("IAP Objects")]
+    public GameObject m_IAPContainer;
+    public Button m_Button_IAPToMainMenu;
+    public Button m_Button_PurchaseNoAds;
 
     // Google Play integration
     bool m_bIsUserAuthenticated = false;
+
+    private S_IAPManager m_IAPManager;
 
     // Start is called before the first frame update
     void Start()
@@ -37,19 +42,27 @@ public class S_MainMenu : MonoBehaviour
         PlayGamesPlatform.Activate();
         PlayGamesPlatform.DebugLogEnabled = true;
 
+        m_IAPManager = m_IAPContainer.GetComponent<S_IAPManager>();
+
         GoToMainMenu();
 
         // Add listener to main menu buttons
-		MMPlayButton.onClick.AddListener(() => {GoToLevelSelectMenu();});
-        MMAchievementsButton.onClick.AddListener(() => { OpenAchievements(); });
-        MMExitButton.onClick.AddListener(() => {ExitGame();});
-        MMTwitterButton.onClick.AddListener(() => { OpenTwitter(); });
+        m_Button_Play.onClick.AddListener(() => { OpenLevelSelectMenu(); });
+        m_Button_Achievements.onClick.AddListener(() => { OpenAchievements(); });
+        m_Button_Exit.onClick.AddListener(() => { ExitGame(); });
+        m_Button_Twitter.onClick.AddListener(() => { OpenTwitter(); });
+        m_Button_IAP.onClick.AddListener(() => { OpenIAPMenu(); });
 
         // Add listener to level select buttons
-        LSLevel1Button.onClick.AddListener(() => { GoToLevel(1); });
-        LSLevel2Button.onClick.AddListener(() => { GoToLevel(2); });
-        LSLevel3Button.onClick.AddListener(() => { GoToLevel(3); });
-    }
+        m_Button_Level1.onClick.AddListener(() => { GoToLevel(1); });
+        m_Button_Level2.onClick.AddListener(() => { GoToLevel(2); });
+        m_Button_Level3.onClick.AddListener(() => { GoToLevel(3); });
+        m_Button_LevelSelectToMainMenu.onClick.AddListener(() => { GoToMainMenu(); });
+
+        // Add listener to IAP buttons
+        m_Button_IAPToMainMenu.onClick.AddListener(() => { GoToMainMenu(); });
+        m_Button_PurchaseNoAds.onClick.AddListener(() => { ProcessPurchaseNoAds(); });
+}
 
     // Update is called once per frame
     void Update()
@@ -71,28 +84,28 @@ public class S_MainMenu : MonoBehaviour
         }
     }
 	
-	void GoToLevelSelectMenu()
+	public void OpenLevelSelectMenu()
 	{
 		print("LevelSelect");
-        MMContainer.SetActive(false);
-        LSContainer.SetActive(true);
-        AMContainer.SetActive(false);
+        m_MainMenuContainer.SetActive(false);
+        m_LevelSelectContainer.SetActive(true);
+        m_IAPContainer.SetActive(false);
     }
 	
-	void ExitGame()
+	public void ExitGame()
 	{
         print("Bye everybody!");
 		Application.Quit();
 	}
 
-    void GoToMainMenu()
+    public void GoToMainMenu()
     {
-        MMContainer.SetActive(true);
-        LSContainer.SetActive(false);
-        AMContainer.SetActive(false);
+        m_MainMenuContainer.SetActive(true);
+        m_LevelSelectContainer.SetActive(false);
+        m_IAPContainer.SetActive(false);
     }
 
-    void GoToLevel(int _iLevelNumber)
+    public void GoToLevel(int _iLevelNumber)
     {
         string sLevelName = "Level" + _iLevelNumber;
         PlayerPrefs.SetInt("CurrentLevel", _iLevelNumber);
@@ -122,5 +135,26 @@ public class S_MainMenu : MonoBehaviour
                 Debug.Log("Login failed for some reason");
             }
         });
+    }
+
+    public void OpenIAPMenu()
+    {
+        m_MainMenuContainer.SetActive(false);
+        m_LevelSelectContainer.SetActive(false);
+        m_IAPContainer.SetActive(true);
+    }
+
+    private void ProcessPurchaseNoAds()
+    {
+        // Attempt to purchase the consumable which disables ads
+        m_IAPManager.BuyProductID("removeads");
+
+        // If the purchase attempt succeeded
+        if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No")
+        {
+            // Disable the option to purchase the consumable
+            m_Button_IAP.gameObject.SetActive(false);
+        }
+        
     }
 }

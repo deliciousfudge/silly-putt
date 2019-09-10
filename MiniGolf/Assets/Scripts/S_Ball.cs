@@ -7,12 +7,13 @@ public class S_Ball : MonoBehaviour
     public Camera Camera;
     public GameObject GameManager;
     public Vector3 m_v3StartingPos = new Vector3(-1.5f, 0.45f, -8.0f);
-    public bool m_bIsRoundInProgress = false;
+    public bool m_bHasRoundStarted = false;
+    public bool m_bHasRoundEnded = false;
     public bool m_bIsBallMoving = false;
+    public int m_iShotCount = 0;
 
     private Rigidbody BallRigidBody;
     private S_GameCamera CameraScript;
-    private S_GameManager GameManagerScript;
     private Vector3 v3Direction = new Vector3(0.0f, 0.0f, 0.0f);
     private float fMaxSpeed = 200.0f;
     private float fCurrentSpeed = 0.0f;
@@ -26,13 +27,12 @@ public class S_Ball : MonoBehaviour
         // Set script references
         BallRigidBody = GetComponent<Rigidbody>();
         CameraScript = Camera.GetComponent<S_GameCamera>();
-        GameManagerScript = GameManager.GetComponent<S_GameManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (m_bIsRoundInProgress)
+        if (m_bHasRoundStarted && !m_bHasRoundEnded)
         {
             if (m_bIsBallMoving)
             {
@@ -45,13 +45,17 @@ public class S_Ball : MonoBehaviour
             }
             else
             {
+                // If the player presses the left mouse button
                 if (Input.GetMouseButtonDown(0))
                 {
+                    // Mark the button as being held down
                     bIsHoldingLeftMouseButtonDown = true;
                 }
 
+                // If the left mouse button is still held down
                 if (bIsHoldingLeftMouseButtonDown)
                 {
+                    // Update the stored location of the mouse pointer in world space
                     v3MouseLocation = cursorOnTransform;
 
                     v3MouseLocation.y = 0.0f;
@@ -59,12 +63,15 @@ public class S_Ball : MonoBehaviour
                     Debug.DrawLine(BallRigidBody.position, v3MouseLocation);
                 }
 
+                // If the left mouse button is released
                 if (Input.GetMouseButtonUp(0))
                 {
                     bIsHoldingLeftMouseButtonDown = false;
 
+                    // If a valid mouse pointer location is stored
                     if (v3MouseLocation != new Vector3(0.0f, 0.0f, 0.0f))
                     {
+                        // Execute the shot
                         Vector3 SwingDirection = transform.position - v3MouseLocation;
 
                         fCurrentSpeed = Mathf.Clamp(SwingDirection.magnitude, fMaxSpeed * 0.1f, fMaxSpeed);
@@ -75,10 +82,14 @@ public class S_Ball : MonoBehaviour
 
                         BallRigidBody.AddForceAtPosition(v3Direction * fCurrentSpeed, BallRigidBody.position, ForceMode.Impulse);
 
+                        // Mark the ball as moving
                         m_bIsBallMoving = true;
 
                         // Unlock the small steps achievement (for hitting the ball)
                         PlayerPrefs.SetInt("Small Steps", 0);
+
+                        // Increment the shot count
+                        m_iShotCount++;
                     }
 
                     v3MouseLocation = new Vector3(0.0f, 0.0f, 0.0f);
@@ -97,14 +108,7 @@ public class S_Ball : MonoBehaviour
 
             CameraScript.m_bIsFollowingBall = false;
 
-            GameManagerScript.EndRound();
-        }
-    }
-
-    private void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.tag == "Wall")
-        {
+            m_bHasRoundEnded = true;
         }
     }
 

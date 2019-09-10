@@ -14,7 +14,7 @@ public class S_IAPManager : MonoBehaviour, IStoreListener
     // Will continue trying in the background until successfully connected
     public void OnInitialized(IStoreController _Controller, IExtensionProvider _Extensions)
     {
-        print("OnInitialized: PASS");
+        print("OnInitialized: Pass");
         ms_StoreController = _Controller;
         ms_StoreExtensionProvider = _Extensions;
     }
@@ -57,12 +57,12 @@ public class S_IAPManager : MonoBehaviour, IStoreListener
             Product ProductInstance = ms_StoreController.products.WithID(_ProductID);
             if (ProductInstance != null && ProductInstance.availableToPurchase)
             {
-                print("Purchasing product");
+                print("BuyProductID: Purchasing product");
                 ms_StoreController.InitiatePurchase(ProductInstance);
             }
             else
             {
-                print("Product either is not found or not available for purchase");
+                print("BuyProductID: Product either is not found or not available for purchase");
             }
         }
         else
@@ -77,12 +77,12 @@ public class S_IAPManager : MonoBehaviour, IStoreListener
         // If the player has purchased the option to remove ads
         if (string.Equals(_Args.purchasedProduct.definition.id, ms_kRemoveAds, System.StringComparison.Ordinal))
         {
-            print("Purchasing Product");
+            print("ProcessPurchase: Purchasing Product");
             PlayerPrefs.SetString("ShouldGameDisplayAds", "No");
         }
         else
         {
-            print("Unrecognized Product");
+            print("ProcessPurchase: Unrecognized Product");
         }
 
         return PurchaseProcessingResult.Complete;

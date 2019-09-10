@@ -10,23 +10,29 @@ public class S_GameManager : MonoBehaviour
     public GameObject StartingPanel;
     public Button StartingStartLevelButton;
     public Button StartingQuitToMenuButton;
+    public Text StartingHoleText;
+    public Text StartingParText;
 
     public GameObject EndingPanel;
     public Button EndingReplayLevelButton;
     public Button EndingQuitToMenuButton;
+    public Text EndingShotStatusText;
+    public Text EndingShotCountText;
 
-    public GameObject Ball;
-    public GameObject Camera;
+    public GameObject InGamePanel;
+    public Text InGameShotsTakenText;
+    public Text InGameParText;
+
+    public GameObject BallObject;
+    public GameObject CameraObject;
 
     private int m_iCurrentLevelID;
     private int m_iRoundCount;
+    private int[] m_iParScores = { 3, 5, 7 };
 
     // Script references
     private S_Ball BallScript;
     private S_GameCamera CameraScript;
-
-    // Advertisements
-    private bool m_bShouldGameDisplayAds = true;
 
     private void Awake()
     {
@@ -36,25 +42,19 @@ public class S_GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Determine if the user has purchased the remove ads option
-        if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No") 
-        {
-            m_bShouldGameDisplayAds = false;
-        }
-        else
-        {
-            m_bShouldGameDisplayAds = true; 
-        }
-
         // Set references to relevant game object scripts
-        BallScript = Ball.GetComponent<S_Ball>();
-        CameraScript = Camera.GetComponent<S_GameCamera>();
+        BallScript = BallObject.GetComponent<S_Ball>();
+        CameraScript = CameraObject.GetComponent<S_GameCamera>();
 
         // Set listeners for UI buttons
         StartingStartLevelButton.onClick.AddListener(() => { StartRound(); });
         StartingQuitToMenuButton.onClick.AddListener(() => { QuitToMainMenu(); });
         EndingReplayLevelButton.onClick.AddListener(() => { RestartRound(); });
         EndingQuitToMenuButton.onClick.AddListener(() => { QuitToMainMenu(); });
+
+        m_iCurrentLevelID = PlayerPrefs.GetInt("CurrentLevel");
+
+        SetHoleAndParText();
 
         // Display the starting UI
         DisplayStartLevelUI();
@@ -63,21 +63,27 @@ public class S_GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (BallScript.m_bHasRoundStarted && BallScript.m_bHasRoundEnded)
+        {
+            EndRound();
+        }
+        else if (BallScript.m_bHasRoundStarted && !BallScript.m_bHasRoundEnded)
+        {
+            InGameShotsTakenText.text = "Shots Taken: " + BallScript.m_iShotCount;
+        }
     }
 
     // Called at the beginning of each round
     // ie When the player first starts a level or has just restarted the level
     public void StartRound()
     {
-        print("Start the round");
-
-        m_iCurrentLevelID = PlayerPrefs.GetInt("CurrentLevel");
+        BallScript.m_iShotCount = 0;
+        BallScript.m_bHasRoundStarted = false;
+        BallScript.m_bHasRoundEnded = false;
 
         // Increment the round count
         m_iRoundCount = PlayerPrefs.GetInt("RoundCount");
         m_iRoundCount++;
-        print("New round count is " + m_iRoundCount);
         PlayerPrefs.SetInt("RoundCount", m_iRoundCount);
 
         // Reset the ball state (set back to original position etc)
@@ -87,18 +93,17 @@ public class S_GameManager : MonoBehaviour
 
         // Hide the starting panel
         StartingPanel.SetActive(false);
+        InGamePanel.SetActive(true);
 
-        BallScript.m_bIsRoundInProgress = true;
+        BallScript.m_bHasRoundStarted = true;
     }
 
     // Called at the end of each round
     // ie Every time the player completes the level or restarts the level
     public void EndRound()
     {
-        BallScript.m_bIsRoundInProgress = false;
-
         // If the user has not purchased the remove ads option
-        if (m_bShouldGameDisplayAds)
+        if (PlayerPrefs.GetString("ShouldGameDisplayAds") != "No")
         {
             // On every alternate round, display an ad to the screen
             if (m_iRoundCount % 2 == 0)
@@ -111,8 +116,6 @@ public class S_GameManager : MonoBehaviour
         {
             print("Shouldn't show ads");
         }
-
-        print("Current level is " + m_iCurrentLevelID);
 
         switch(m_iCurrentLevelID)
         {
@@ -161,6 +164,8 @@ public class S_GameManager : MonoBehaviour
             default:break;
         }
 
+        ProcessPlayerResults();
+
         DisplayEndLevelUI();
     }
 
@@ -205,12 +210,14 @@ public class S_GameManager : MonoBehaviour
     {
         StartingPanel.SetActive(true);
         EndingPanel.SetActive(false);
+        InGamePanel.SetActive(false);
     }
 
     void DisplayEndLevelUI()
     {
         EndingPanel.SetActive(true);
         StartingPanel.SetActive(false);
+        InGamePanel.SetActive(false);
     }
 
     void QuitToMainMenu()
@@ -222,5 +229,79 @@ public class S_GameManager : MonoBehaviour
     {
         EndingPanel.SetActive(false);
         StartRound();
+    }
+
+    private void SetHoleAndParText()
+    {
+        StartingHoleText.text = "Hole " + m_iCurrentLevelID;
+        StartingParText.text = "Par " + m_iParScores[m_iCurrentLevelID - 1];
+        InGameParText.text = "Par: " + m_iParScores[m_iCurrentLevelID - 1];
+    }
+
+    private void ProcessPlayerResults()
+    {
+        if (BallScript.m_iShotCount == 1)
+        {
+            EndingShotStatusText.text = "Hole-in-one!";
+            EndingShotCountText.text = "You finished the hole in 1 shot";
+        }
+        else
+        {
+            int iShotDifference = BallScript.m_iShotCount - m_iParScores[m_iCurrentLevelID - 1];
+            switch (iShotDifference)
+            {
+                case -3:
+                {
+
+                }
+                break;
+
+                case -2:
+                {
+                    EndingShotStatusText.text = "Albatross!";
+                }
+                break;
+
+                case -1:
+                {
+                    EndingShotStatusText.text = "Birdie!";
+                }
+                break;
+
+                case 0:
+                {
+                    EndingShotStatusText.text = "Par!";
+                }
+                break;
+
+                case 1:
+                {
+                    EndingShotStatusText.text = "Bogey";
+                }
+                break;
+
+                case 2:
+                {
+                    EndingShotStatusText.text = "Double Bogey";
+                }
+                break;
+
+                case 3:
+                {
+                    EndingShotStatusText.text = "Triple Bogey";
+                }
+                break;
+
+                default:
+                {
+                    EndingShotStatusText.text = "You need to practice";
+                }
+                break;
+            }
+
+            EndingShotCountText.text = "You finished the hole in " + BallScript.m_iShotCount + " shots";
+        }
+
+
     }
 }

@@ -13,23 +13,26 @@ public class S_MainMenu : MonoBehaviour
 {
     [Header("Main Menu Objects")]
     public GameObject m_MainMenuContainer;
-    public Button m_Button_Play;
-    public Button m_Button_Achievements;
-    public Button m_Button_Exit;
-    public Button m_Button_Twitter;
-    public Button m_Button_IAP; // In App Purchases
+    public Button m_ButtonPlay;
+    public Button m_ButtonAchievements;
+    public Button m_ButtonLeaderboard;
+    public Button m_ButtonExit;
+    public Button m_ButtonTwitter;
+    public Button m_ButtonIAP; // In App Purchases
 
     [Header("Level Select Objects")]
     public GameObject m_LevelSelectContainer;
-    public Button m_Button_Level1;
-    public Button m_Button_Level2;
-    public Button m_Button_Level3;
-    public Button m_Button_LevelSelectToMainMenu;
+    public Button m_ButtonLevel1;
+    public Button m_ButtonLevel2;
+    public Button m_ButtonLevel3;
+    public Button m_ButtonLevelSelectToMainMenu;
 
     [Header("IAP Objects")]
     public GameObject m_IAPContainer;
-    public Button m_Button_IAPToMainMenu;
-    public Button m_Button_PurchaseNoAds;
+    public Button m_ButtonIAPToMainMenu;
+    public Button m_ButtonPurchaseRemoveAds;
+    public Image m_ImageRemoveAdsNotPurchased;
+    public Image m_ImageRemoveAdsPurchased;
 
     // Google Play integration
     bool m_bIsUserAuthenticated = false;
@@ -44,24 +47,39 @@ public class S_MainMenu : MonoBehaviour
 
         m_IAPManager = m_IAPContainer.GetComponent<S_IAPManager>();
 
+        // If the RemoveAds purchase was made in a previous playthrough
+        if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No")
+        {
+            // Display the purchase completed icon next to the RemoveAds icon
+            m_ImageRemoveAdsNotPurchased.gameObject.SetActive(false);
+            m_ImageRemoveAdsPurchased.gameObject.SetActive(true);
+        }
+        else
+        {
+            // Otherwise display the purchase not completed icon next to the RemoveAds icon
+            m_ImageRemoveAdsNotPurchased.gameObject.SetActive(true);
+            m_ImageRemoveAdsPurchased.gameObject.SetActive(false);
+        }
+
         GoToMainMenu();
 
         // Add listener to main menu buttons
-        m_Button_Play.onClick.AddListener(() => { OpenLevelSelectMenu(); });
-        m_Button_Achievements.onClick.AddListener(() => { OpenAchievements(); });
-        m_Button_Exit.onClick.AddListener(() => { ExitGame(); });
-        m_Button_Twitter.onClick.AddListener(() => { OpenTwitter(); });
-        m_Button_IAP.onClick.AddListener(() => { OpenIAPMenu(); });
+        m_ButtonPlay.onClick.AddListener(() => { OpenLevelSelectMenu(); });
+        m_ButtonAchievements.onClick.AddListener(() => { OpenAchievements(); });
+        m_ButtonLeaderboard.onClick.AddListener(() => { OpenLeaderboard(); });
+        m_ButtonExit.onClick.AddListener(() => { ExitGame(); });
+        m_ButtonTwitter.onClick.AddListener(() => { OpenTwitter(); });
+        m_ButtonIAP.onClick.AddListener(() => { OpenIAPMenu(); });
 
         // Add listener to level select buttons
-        m_Button_Level1.onClick.AddListener(() => { GoToLevel(1); });
-        m_Button_Level2.onClick.AddListener(() => { GoToLevel(2); });
-        m_Button_Level3.onClick.AddListener(() => { GoToLevel(3); });
-        m_Button_LevelSelectToMainMenu.onClick.AddListener(() => { GoToMainMenu(); });
+        m_ButtonLevel1.onClick.AddListener(() => { GoToLevel(1); });
+        m_ButtonLevel2.onClick.AddListener(() => { GoToLevel(2); });
+        m_ButtonLevel3.onClick.AddListener(() => { GoToLevel(3); });
+        m_ButtonLevelSelectToMainMenu.onClick.AddListener(() => { GoToMainMenu(); });
 
         // Add listener to IAP buttons
-        m_Button_IAPToMainMenu.onClick.AddListener(() => { GoToMainMenu(); });
-        m_Button_PurchaseNoAds.onClick.AddListener(() => { ProcessPurchaseNoAds(); });
+        m_ButtonIAPToMainMenu.onClick.AddListener(() => { GoToMainMenu(); });
+        m_ButtonPurchaseRemoveAds.onClick.AddListener(() => { ProcessPurchaseNoAds(); });
 }
 
     // Update is called once per frame
@@ -69,12 +87,14 @@ public class S_MainMenu : MonoBehaviour
     {
         if (!m_bIsUserAuthenticated)
         {
-            Social.localUser.Authenticate((bool success) =>
+            Social.localUser.Authenticate((bool _success) =>
             {
-                if (success)
+                if (_success)
                 {
                     Debug.Log("You've successfully logged in");
                     m_bIsUserAuthenticated = true;
+
+                    m_IAPManager.InitializePurchasing();
                 }
                 else
                 {
@@ -137,6 +157,21 @@ public class S_MainMenu : MonoBehaviour
         });
     }
 
+    public void OpenLeaderboard()
+    {
+        Social.localUser.Authenticate((bool _bSuccess) =>
+        {
+            if (_bSuccess)
+            {
+                Debug.Log("You've successfully logged in");
+                Social.ShowLeaderboardUI();
+            }
+            else
+            {
+                Debug.Log("Login failed for some reason");
+            }
+        });
+    }
     public void OpenIAPMenu()
     {
         m_MainMenuContainer.SetActive(false);
@@ -146,15 +181,22 @@ public class S_MainMenu : MonoBehaviour
 
     private void ProcessPurchaseNoAds()
     {
-        // Attempt to purchase the consumable which disables ads
-        m_IAPManager.BuyProductID("removeads");
-
-        // If the purchase attempt succeeded
-        if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No")
+        // If the RemoveAds purchase has not already been made
+        if (PlayerPrefs.GetString("ShouldGameDisplayAds") != "No")
         {
-            // Disable the option to purchase the consumable
-            m_Button_IAP.gameObject.SetActive(false);
+            // Attempt to purchase it
+            m_IAPManager.BuyProductID("removeads");
+
+            // If the purchase attempt succeeded
+            if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No")
+            {
+                // Disable the option to purchase the consumable
+                m_ButtonPurchaseRemoveAds.gameObject.SetActive(false);
+
+                // Provide feedback to the user that the purchase was successful
+                m_ImageRemoveAdsNotPurchased.gameObject.SetActive(false);
+                m_ImageRemoveAdsPurchased.gameObject.SetActive(true);
+            }
         }
-        
     }
 }

@@ -11,15 +11,14 @@ public class S_Ball : MonoBehaviour
     public bool m_bHasRoundEnded = false;
     public bool m_bIsBallMoving = false;
     public int m_iShotCount = 0;
+    public float m_fMaxSpeed = 20.0f;
 
     private Rigidbody BallRigidBody;
+    private LineRenderer BallLineRenderer;
     private S_GameCamera CameraScript;
-    private Vector3 v3Direction = new Vector3(0.0f, 0.0f, 0.0f);
-    private float fMaxSpeed = 200.0f;
-    private float fCurrentSpeed = 0.0f;
-
-    private bool bIsHoldingLeftMouseButtonDown = false;
-    private Vector3 v3MouseLocation = new Vector3(0.0f, 0.0f, 0.0f);
+    private Vector3 m_v3Direction = new Vector3(0.0f, 0.0f, 0.0f);
+    private float m_fCurrentSpeed = 0.0f;
+    private float m_fProjectedDistance = 0.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -32,70 +31,22 @@ public class S_Ball : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (m_bHasRoundStarted && !m_bHasRoundEnded)
-        {
-            if (m_bIsBallMoving)
-            {
-                // If the velocity of the ball has reduced to a significantly slow amount
-                if (BallRigidBody.velocity.sqrMagnitude < 0.7f)
-                {
-                    // Remove all velocity from the ball
-                    RemoveVelocity();
-                }
-            }
-            else
-            {
-                // If the player presses the left mouse button
-                if (Input.GetMouseButtonDown(0))
-                {
-                    // Mark the button as being held down
-                    bIsHoldingLeftMouseButtonDown = true;
-                }
+    }
 
-                // If the left mouse button is still held down
-                if (bIsHoldingLeftMouseButtonDown)
-                {
-                    // Update the stored location of the mouse pointer in world space
-                    v3MouseLocation = cursorOnTransform;
+    public void PerformShot(Vector3 _Direction, float _PowerRatio)
+    {
+        m_v3Direction = _Direction;
+        m_v3Direction.y = 0.0f;
 
-                    v3MouseLocation.y = 0.0f;
+        m_fCurrentSpeed = m_fMaxSpeed * _PowerRatio;
 
-                    Debug.DrawLine(BallRigidBody.position, v3MouseLocation);
-                }
+        BallRigidBody.AddForceAtPosition(m_v3Direction * m_fCurrentSpeed, BallRigidBody.position, ForceMode.Impulse);
 
-                // If the left mouse button is released
-                if (Input.GetMouseButtonUp(0))
-                {
-                    bIsHoldingLeftMouseButtonDown = false;
+        // Mark the ball as moving
+        m_bIsBallMoving = true;
 
-                    // If a valid mouse pointer location is stored
-                    if (v3MouseLocation != new Vector3(0.0f, 0.0f, 0.0f))
-                    {
-                        // Execute the shot
-                        Vector3 SwingDirection = transform.position - v3MouseLocation;
-
-                        fCurrentSpeed = Mathf.Clamp(SwingDirection.magnitude, fMaxSpeed * 0.1f, fMaxSpeed);
-
-                        v3Direction = SwingDirection.normalized;
-
-                        v3Direction.y = 0.0f;
-
-                        BallRigidBody.AddForceAtPosition(v3Direction * fCurrentSpeed, BallRigidBody.position, ForceMode.Impulse);
-
-                        // Mark the ball as moving
-                        m_bIsBallMoving = true;
-
-                        // Unlock the small steps achievement (for hitting the ball)
-                        PlayerPrefs.SetInt("Small Steps", 0);
-
-                        // Increment the shot count
-                        m_iShotCount++;
-                    }
-
-                    v3MouseLocation = new Vector3(0.0f, 0.0f, 0.0f);
-                }
-            }
-        }
+        // Increment the shot count
+        m_iShotCount++;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -106,50 +57,34 @@ public class S_Ball : MonoBehaviour
 
             BallRigidBody.detectCollisions = false;
 
-            CameraScript.m_bIsFollowingBall = false;
+            CameraScript.m_bShouldFollowBall = false;
 
-            m_bHasRoundEnded = true;
-        }
-    }
+            StartCoroutine(MarkEndOfRound());
 
-    private static Vector3 cursorWorldPosOnNCP
-    {
-        get
-        {
-            return Camera.main.ScreenToWorldPoint(
-                new Vector3(Input.mousePosition.x,
-                Input.mousePosition.y,
-                Camera.main.nearClipPlane));
-        }
-    }
-
-    private static Vector3 cameraToCursor
-    {
-        get
-        {
-            return cursorWorldPosOnNCP - Camera.main.transform.position;
-        }
-    }
-
-    private Vector3 cursorOnTransform
-    {
-        get
-        {
-            Vector3 camToTrans = transform.position - Camera.main.transform.position;
-            return Camera.main.transform.position +
-                cameraToCursor *
-                (Vector3.Dot(Camera.main.transform.forward, camToTrans) / Vector3.Dot(Camera.main.transform.forward, cameraToCursor));
         }
     }
 
     private void OnDrawGizmos()
     {
-        //Gizmos.color = Color.green;
-        //Gizmos.DrawLine(transform.position, v3MouseLocation);
-        //print("Ball pos");
-        //print(transform.position);
-        //print("Mouse pos");
-        //print(v3MouseLocation);
+        if (CameraScript != null && !m_bIsBallMoving)
+        {
+            //Gizmos.DrawLine(transform.position, transform.position + (CameraScript.transform.forward * m_fProjectedDistance));
+            //Gizmos.DrawIcon(transform.position + (CameraScript.transform.forward), "arrowUp", false);
+
+            if (m_fProjectedDistance > 0.02f)
+            {
+                for (int i = 1; i < 6; ++i)
+                {
+                    print((m_fProjectedDistance / i));
+                    Vector3 ForwardVec = CameraScript.transform.forward * (m_fProjectedDistance / i);
+                    Vector3 ProjectedPos = transform.position + ForwardVec;
+                    ProjectedPos.y = transform.position.y;
+
+                    Gizmos.DrawSphere(ProjectedPos, 0.05f);
+                }
+            }
+
+        }
     }
 
     public void ResetState()
@@ -157,13 +92,33 @@ public class S_Ball : MonoBehaviour
         RemoveVelocity();
         SetCollision(true);
         ResetPosition();
+
+        m_iShotCount = 0;
+        m_bHasRoundEnded = false;
+        m_bHasRoundStarted = false;
     }
 
-    private void RemoveVelocity()
+    public void SetProjectedDistance(float _ProjectedDistance)
+    {
+        m_fProjectedDistance = _ProjectedDistance;
+    }
+
+    public void RemoveVelocity()
     {
         BallRigidBody.velocity = Vector3.zero;
         BallRigidBody.angularVelocity = Vector3.zero;
         m_bIsBallMoving = false;
+    }
+
+    public Rigidbody GetBallRigidbody()
+    {
+        return BallRigidBody;
+    }
+
+    private IEnumerator MarkEndOfRound()
+    {
+        yield return new WaitForSeconds(0.5f);
+        m_bHasRoundEnded = true;
     }
 
     private void SetCollision(bool _bIsColliding)

@@ -137,7 +137,7 @@ public class S_MainMenu : MonoBehaviour
         string sTwitterAddress = "http://twitter.com/intent/tweet";
         string sMessage = "GET YO PUTT ON WITH SILLY PUTT"; // The tweet content to display
         string sAppStoreDescription = "You can find the game at: "; // The title of the game
-        string sAppStoreLink = "https://play.google.com/store/apps/details?id=com.growlgamesstudio.pizZapMani"; // The Play Store link of the game
+        string sAppStoreLink = "https://placeholderlink.mygame"; // The Play Store link of the game
 
         Application.OpenURL(sTwitterAddress + "?text=" +  UnityWebRequest.EscapeURL(sMessage + "\n\n" + sAppStoreDescription + sAppStoreLink));
     }

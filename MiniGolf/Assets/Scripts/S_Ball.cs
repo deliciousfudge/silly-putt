@@ -14,7 +14,6 @@ public class S_Ball : MonoBehaviour
     public float m_fMaxSpeed = 20.0f;
 
     private Rigidbody BallRigidBody;
-    private LineRenderer BallLineRenderer;
     private S_GameCamera CameraScript;
     private Vector3 m_v3Direction = new Vector3(0.0f, 0.0f, 0.0f);
     private float m_fCurrentSpeed = 0.0f;
@@ -31,6 +30,10 @@ public class S_Ball : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (m_bIsBallMoving)
+        {
+            CameraScript.SetBallDirection(transform.forward);
+        }
     }
 
     public void PerformShot(Vector3 _Direction, float _PowerRatio)
@@ -60,30 +63,6 @@ public class S_Ball : MonoBehaviour
             CameraScript.m_bShouldFollowBall = false;
 
             StartCoroutine(MarkEndOfRound());
-
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (CameraScript != null && !m_bIsBallMoving)
-        {
-            //Gizmos.DrawLine(transform.position, transform.position + (CameraScript.transform.forward * m_fProjectedDistance));
-            //Gizmos.DrawIcon(transform.position + (CameraScript.transform.forward), "arrowUp", false);
-
-            if (m_fProjectedDistance > 0.02f)
-            {
-                for (int i = 1; i < 6; ++i)
-                {
-                    print((m_fProjectedDistance / i));
-                    Vector3 ForwardVec = CameraScript.transform.forward * (m_fProjectedDistance / i);
-                    Vector3 ProjectedPos = transform.position + ForwardVec;
-                    ProjectedPos.y = transform.position.y;
-
-                    Gizmos.DrawSphere(ProjectedPos, 0.05f);
-                }
-            }
-
         }
     }
 
@@ -117,7 +96,7 @@ public class S_Ball : MonoBehaviour
 
     private IEnumerator MarkEndOfRound()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
         m_bHasRoundEnded = true;
     }
 

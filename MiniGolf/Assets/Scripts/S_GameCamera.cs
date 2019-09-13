@@ -52,6 +52,7 @@ public class S_GameCamera : MonoBehaviour
     public void OnRotateClockwiseButtonPressed()
     {
         m_bIsRotateClockwiseHeld = true;
+        print("Clickety clack");
     }
 
     public void OnRotateClockwiseButtonReleased()

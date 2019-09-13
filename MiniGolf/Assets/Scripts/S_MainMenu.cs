@@ -31,8 +31,7 @@ public class S_MainMenu : MonoBehaviour
     public GameObject m_IAPContainer;
     public Button m_ButtonIAPToMainMenu;
     public Button m_ButtonPurchaseRemoveAds;
-    public Image m_ImageRemoveAdsNotPurchased;
-    public Image m_ImageRemoveAdsPurchased;
+    public Text m_TextRemoveAdsDescription;
 
     // Google Play integration
     bool m_bIsUserAuthenticated = false;
@@ -50,15 +49,16 @@ public class S_MainMenu : MonoBehaviour
         // If the RemoveAds purchase was made in a previous playthrough
         if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No")
         {
-            // Display the purchase completed icon next to the RemoveAds icon
-            m_ImageRemoveAdsNotPurchased.gameObject.SetActive(false);
-            m_ImageRemoveAdsPurchased.gameObject.SetActive(true);
+            // Show that the purchase was completed
+            m_TextRemoveAdsDescription.text = "Remove Ads: Purchased";
+
+            // Disable the option to purchase the consumable
+            m_ButtonPurchaseRemoveAds.interactable = false;
         }
         else
         {
-            // Otherwise display the purchase not completed icon next to the RemoveAds icon
-            m_ImageRemoveAdsNotPurchased.gameObject.SetActive(true);
-            m_ImageRemoveAdsPurchased.gameObject.SetActive(false);
+            // Otherwise display that the purchase was not completed
+            m_TextRemoveAdsDescription.text = "Remove Ads: Unpurchased";
         }
 
         GoToMainMenu();
@@ -137,7 +137,7 @@ public class S_MainMenu : MonoBehaviour
         string sTwitterAddress = "http://twitter.com/intent/tweet";
         string sMessage = "GET YO PUTT ON WITH SILLY PUTT"; // The tweet content to display
         string sAppStoreDescription = "You can find the game at: "; // The title of the game
-        string sAppStoreLink = "https://placeholderlink.mygame"; // The Play Store link of the game
+        string sAppStoreLink = "https://play.google.com/store/apps/details?id=com.JokersWild.SillyPutt"; // The Play Store link of the game
 
         Application.OpenURL(sTwitterAddress + "?text=" +  UnityWebRequest.EscapeURL(sMessage + "\n\n" + sAppStoreDescription + sAppStoreLink));
     }
@@ -191,11 +191,10 @@ public class S_MainMenu : MonoBehaviour
             if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No")
             {
                 // Disable the option to purchase the consumable
-                m_ButtonPurchaseRemoveAds.gameObject.SetActive(false);
+                m_ButtonPurchaseRemoveAds.interactable = false;
 
                 // Provide feedback to the user that the purchase was successful
-                m_ImageRemoveAdsNotPurchased.gameObject.SetActive(false);
-                m_ImageRemoveAdsPurchased.gameObject.SetActive(true);
+                m_TextRemoveAdsDescription.text = "Remove Ads: Purchased";
             }
         }
     }

@@ -26,11 +26,12 @@ public class S_GameManager : MonoBehaviour
     public GameObject InGamePanel;
     public Text InGameShotsTakenText;
     public Text InGameParText;
-    public GameObject InGamePowerSection;
-    public Image InGamePowerBarFill;
+    public Image InGamePowerButtonBorder;
     public Button InGamePowerButton;
     public Canvas InGameProjectedPathCanvas;
-    private Image InGameProjectedPathArrow;
+
+    private Image InGamePowerButtonFill;
+    private Image InGameProjectedDirection;
 
     [Header("Gameplay Objects")]
     public GameObject BallObject;
@@ -45,6 +46,7 @@ public class S_GameManager : MonoBehaviour
     private bool m_bIsPowerButtonHeld = false;
     private bool m_bIsPowerButtonJustReleased = false;
     private bool m_bIsPowerFillFalling = false;
+    private bool m_bHasRoundEnded = false;
 
     // Script references
     private S_Ball BallScript;
@@ -61,10 +63,11 @@ public class S_GameManager : MonoBehaviour
         // Set references to relevant game object scripts
         BallScript = BallObject.GetComponent<S_Ball>();
         CameraScript = CameraObject.GetComponent<S_GameCamera>();
-        InGameProjectedPathArrow = InGameProjectedPathCanvas.GetComponentInChildren<Image>();
+        InGameProjectedDirection = InGameProjectedPathCanvas.GetComponentInChildren<Image>();
+        InGamePowerButtonFill = InGamePowerButton.GetComponent<Image>();
 
-        InGamePowerBarFill.type = Image.Type.Filled;
-        InGamePowerBarFill.fillAmount = 0.0f;
+        InGamePowerButtonFill.type = Image.Type.Filled;
+        InGamePowerButtonFill.fillAmount = 0.0f;
 
         // Set listeners for UI buttons
         StartingStartLevelButton.onClick.AddListener(() => { StartRound(); });
@@ -76,8 +79,8 @@ public class S_GameManager : MonoBehaviour
 
         if (m_iCurrentLevelNumber < m_iParScores.Length)
         {
-            EndingNextLevelButton.onClick.AddListener(() => { GoToLevel(m_iCurrentLevelNumber++); });
-            print("Set next level to " + m_iCurrentLevelNumber++);
+            EndingNextLevelButton.onClick.AddListener(() => { GoToLevel(m_iCurrentLevelNumber + 1); });
+            print("Set next level to " + m_iCurrentLevelNumber + 1);
         }
         else
         {
@@ -97,10 +100,12 @@ public class S_GameManager : MonoBehaviour
         CameraScript.SetBallTransform(BallScript.transform);
 
         // If the start and end of the round have both been triggered
-        if (BallScript.m_bHasRoundStarted && BallScript.m_bHasRoundEnded)
+        if (BallScript.m_bHasRoundStarted && BallScript.m_bHasRoundEnded && !m_bHasRoundEnded)
         {
             // Proceed with ending the round
             EndRound();
+
+            m_bHasRoundEnded = true;
         }
         // If the start of the round has been triggered but not the end (ie The round is in progress)
         else if (BallScript.m_bHasRoundStarted && !BallScript.m_bHasRoundEnded)
@@ -121,7 +126,7 @@ public class S_GameManager : MonoBehaviour
                 if (m_bIsPowerButtonHeld)
                 {
                     // If the power meter becomes full
-                    if (InGamePowerBarFill.fillAmount > 0.99f)
+                    if (InGamePowerButtonFill.fillAmount > 0.99f)
                     {
                         // Instruct it to fall back towards empty
                         m_bIsPowerFillFalling = true;
@@ -133,7 +138,7 @@ public class S_GameManager : MonoBehaviour
                         print("Power is falling");
 
                         // If the power meter has gone below the minimum threshold
-                        if (InGamePowerBarFill.fillAmount <= m_fMinimumPowerRatio)
+                        if (InGamePowerButtonFill.fillAmount <= m_fMinimumPowerRatio)
                         {
                             // Force the ball to be shot at a minimum amount of power
                             m_bIsPowerButtonJustReleased = true;
@@ -144,7 +149,7 @@ public class S_GameManager : MonoBehaviour
                         else
                         {
                             // Continue to deduct power at the specified rate
-                            InGamePowerBarFill.fillAmount -= (m_fPowerBarFillRate * Time.deltaTime);
+                            InGamePowerButtonFill.fillAmount -= (m_fPowerBarFillRate * Time.deltaTime);
                         }
                     }
                     // If the power meter is not yet full
@@ -153,7 +158,7 @@ public class S_GameManager : MonoBehaviour
                         Debug.Log("Add power");
 
                         // Continue to add power at the specified rate
-                        InGamePowerBarFill.fillAmount += (m_fPowerBarFillRate * Time.deltaTime);
+                        InGamePowerButtonFill.fillAmount += (m_fPowerBarFillRate * Time.deltaTime);
                     }
 
                     // Update the projected distance that the ball will travel so that this can be fed back to the player
@@ -163,7 +168,7 @@ public class S_GameManager : MonoBehaviour
                 else if (m_bIsPowerButtonJustReleased)
                 {
                     // Hit the ball at the fill amount (between 0 and 1) ratio of hitting power
-                    BallScript.PerformShot(CameraScript.transform.forward, InGamePowerBarFill.fillAmount);
+                    BallScript.PerformShot(CameraScript.transform.forward, InGamePowerButtonFill.fillAmount);
                     CameraScript.SetIsPlayerSelectingShot(false);
                     BallScript.SetProjectedDistance(0.0f);
 
@@ -173,14 +178,15 @@ public class S_GameManager : MonoBehaviour
                     m_bIsPowerFillFalling = false;
 
                     // Hide the power meter
-                    InGamePowerBarFill.fillAmount = 0.0f;
-                    InGamePowerSection.SetActive(false);
+                    InGamePowerButtonFill.fillAmount = 0.0f;
+                    InGamePowerButtonBorder.gameObject.SetActive(false);
                 }
 
-                Vector3 ProjectedPos = BallScript.transform.position + new Vector3(0.0f, 0.2f, 0.0f);
+                Vector3 CameraForward = CameraScript.GetCamera().transform.forward;
+                CameraForward.y = 0.0f;
+                Vector3 ProjectedPos = BallScript.transform.position + (CameraForward * 0.5f);
                 InGameProjectedPathCanvas.transform.position = ProjectedPos;
-                InGameProjectedPathArrow.transform.rotation = Quaternion.Euler(new Vector3(0.0f, CameraScript.GetCamera().transform.eulerAngles.y, 0.0f));
-                InGameProjectedPathArrow.transform.localScale = new Vector3(0.5f, Mathf.Clamp(InGamePowerBarFill.fillAmount * 2.0f, 0.2f, 2.0f), 1.0f);
+                InGameProjectedDirection.transform.rotation = Quaternion.Euler(new Vector3(0.0f, CameraScript.GetCamera().transform.eulerAngles.y, 0.0f));
             }
 
             
@@ -191,6 +197,11 @@ public class S_GameManager : MonoBehaviour
     // ie When the player first starts a level or has just restarted the level
     public void StartRound()
     {
+        // Increment the round count
+        m_iRoundCount = PlayerPrefs.GetInt("RoundCount");
+        m_iRoundCount++;
+        PlayerPrefs.SetInt("RoundCount", m_iRoundCount);
+
         // Reset the ball state (set back to original position etc)
         BallScript.ResetState();
         CameraScript.ResetState();
@@ -200,6 +211,7 @@ public class S_GameManager : MonoBehaviour
         InGamePanel.SetActive(true);
         
         BallScript.m_bHasRoundStarted = true;
+        m_bHasRoundEnded = false;
 
         EnterShotSelection();
     }
@@ -211,7 +223,7 @@ public class S_GameManager : MonoBehaviour
         // If the user has not purchased the remove ads option
         if (PlayerPrefs.GetString("ShouldGameDisplayAds") != "No")
         {
-            // On every alternate round, display an ad to the screen
+            //On every alternate round, display an ad to the screen
             if (m_iRoundCount % 2 == 0)
             {
                 print("Show an ad");
@@ -222,11 +234,6 @@ public class S_GameManager : MonoBehaviour
         {
             print("Shouldn't show ads");
         }
-
-        // Increment the round count
-        m_iRoundCount = PlayerPrefs.GetInt("RoundCount");
-        m_iRoundCount++;
-        PlayerPrefs.SetInt("RoundCount", m_iRoundCount);
 
         switch (m_iCurrentLevelNumber)
         {
@@ -451,7 +458,7 @@ public class S_GameManager : MonoBehaviour
         CameraScript.SetIsPlayerSelectingShot(true);
 
         // Restore the power meter
-        InGamePowerSection.SetActive(true);
+        InGamePowerButtonBorder.gameObject.SetActive(true);
 
         // Restore the projected path indicator
         InGameProjectedPathCanvas.gameObject.SetActive(true);

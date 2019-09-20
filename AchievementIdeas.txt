@@ -7,3 +7,10 @@
 All game art and icons courtesy of Kenney, unless otherwise stated
 
 Twitter icon courtesy of Pixsector: http://pixsector.com/icon/free-twitter-icon-png-vector/758
+
+Sounds
+=======
+Ball Hit: https://freesound.org/people/Gareth_H/sounds/365789/
+Ball In Hole: https://freesound.org/people/AGFX/sounds/20428/
+Button Press: https://freesound.org/people/Bertrof/sounds/131658/'
+Remove Ads Purchase: https://freesound.org/people/CapsLok/sounds/184438/

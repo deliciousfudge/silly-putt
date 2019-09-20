@@ -1,20 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class S_Ball : MonoBehaviour
 {
-    public Camera Camera;
-    public GameObject GameManager;
+    public UnityEvent OnBallHasEnteredHole;
+
     public Vector3 m_v3StartingPos = new Vector3(-1.5f, 0.45f, -8.0f);
     public bool m_bHasRoundStarted = false;
     public bool m_bHasRoundEnded = false;
     public bool m_bIsBallMoving = false;
+    public bool m_bHasBallEnteredHole = false;
     public int m_iShotCount = 0;
     public float m_fMaxSpeed = 20.0f;
 
     private Rigidbody BallRigidBody;
-    private S_GameCamera CameraScript;
     private Vector3 m_v3Direction = new Vector3(0.0f, 0.0f, 0.0f);
     private float m_fCurrentSpeed = 0.0f;
     private float m_fProjectedDistance = 0.0f;
@@ -24,16 +25,6 @@ public class S_Ball : MonoBehaviour
     {
         // Set script references
         BallRigidBody = GetComponent<Rigidbody>();
-        CameraScript = Camera.GetComponent<S_GameCamera>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (m_bIsBallMoving)
-        {
-            CameraScript.SetBallDirection(transform.forward);
-        }
     }
 
     public void PerformShot(Vector3 _Direction, float _PowerRatio)
@@ -60,7 +51,7 @@ public class S_Ball : MonoBehaviour
 
             BallRigidBody.detectCollisions = false;
 
-            CameraScript.m_bShouldFollowBall = false;
+            OnBallHasEnteredHole.Invoke();
 
             StartCoroutine(MarkEndOfRound());
         }
@@ -69,11 +60,15 @@ public class S_Ball : MonoBehaviour
     public void ResetState()
     {
         RemoveVelocity();
+
         SetCollision(true);
+
         ResetPosition();
 
         m_iShotCount = 0;
+
         m_bHasRoundEnded = false;
+
         m_bHasRoundStarted = false;
     }
 
@@ -86,6 +81,7 @@ public class S_Ball : MonoBehaviour
     {
         BallRigidBody.velocity = Vector3.zero;
         BallRigidBody.angularVelocity = Vector3.zero;
+
         m_bIsBallMoving = false;
     }
 

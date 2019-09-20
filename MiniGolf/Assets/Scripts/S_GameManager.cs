@@ -16,6 +16,7 @@ public class S_GameManager : MonoBehaviour
 
     [Header("End Round UI")]
     public GameObject EndingPanel;
+    public Button EndingLeaderboardButton;
     public Button EndingNextLevelButton;
     public Button EndingReplayLevelButton;
     public Button EndingQuitToMenuButton;
@@ -36,6 +37,16 @@ public class S_GameManager : MonoBehaviour
     [Header("Gameplay Objects")]
     public GameObject BallObject;
     public GameObject CameraObject;
+
+    [Header("Audio")]
+    public AudioSource MusicPlayer;
+    public AudioClip MusicInGame;
+    public AudioClip MusicEndGame;
+    public AudioSource SFXPlayer;
+    public AudioClip SFXButtonForward;
+    public AudioClip SFXButtonBack;
+    public AudioClip SFXHitBall;
+    public AudioClip SFXBallInHole;
 
     public int[] m_iParScores { get; } = { 3, 5, 7 };
     public float m_fPowerBarFillRate = 0.001f;
@@ -72,6 +83,7 @@ public class S_GameManager : MonoBehaviour
         // Set listeners for UI buttons
         StartingStartLevelButton.onClick.AddListener(() => { StartRound(); });
         StartingQuitToMenuButton.onClick.AddListener(() => { QuitToMainMenu(); });
+        EndingLeaderboardButton.onClick.AddListener(() => { ShowLeaderboard(); });
         EndingReplayLevelButton.onClick.AddListener(() => { RestartRound(); });
         EndingQuitToMenuButton.onClick.AddListener(() => { QuitToMainMenu(); });
 
@@ -89,6 +101,12 @@ public class S_GameManager : MonoBehaviour
 
         SetHoleAndParText();
 
+        MusicPlayer.loop = true;
+        MusicPlayer.clip = MusicEndGame;
+        MusicPlayer.Play();
+
+        SFXPlayer.loop = false;
+
         // Display the starting UI
         DisplayStartLevelUI();
     }
@@ -96,100 +114,105 @@ public class S_GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Update the camera's reference to the ball transform
-        CameraScript.SetBallTransform(BallScript.transform);
-
-        // If the start and end of the round have both been triggered
-        if (BallScript.m_bHasRoundStarted && BallScript.m_bHasRoundEnded && !m_bHasRoundEnded)
+        // If the ball exists
+        if (BallScript != null)
         {
-            // Proceed with ending the round
-            EndRound();
+            // Update the camera's reference to the ball transform
+            CameraScript.SetBallTransform(BallScript.transform);
 
-            m_bHasRoundEnded = true;
-        }
-        // If the start of the round has been triggered but not the end (ie The round is in progress)
-        else if (BallScript.m_bHasRoundStarted && !BallScript.m_bHasRoundEnded)
-        {
-            // Update the shots taken text
-            InGameShotsTakenText.text = "Shots Taken: " + BallScript.m_iShotCount;
-
-            if (BallScript.m_bIsBallMoving)
+            // If the start and end of the round have both been triggered by the ball, but not yet in the game manager
+            if (BallScript.m_bHasRoundStarted && BallScript.m_bHasRoundEnded && !m_bHasRoundEnded)
             {
-                // If the velocity of the ball has reduced to a significantly slow amount
-                if (BallScript.GetBallRigidbody().velocity.sqrMagnitude < 0.7f)
-                {
-                    StartCoroutine(EnterShotSelectionDelayed());
-                }
+                // Proceed with ending the round
+                EndRound();
             }
-            else
+            // If the start of the round has been triggered but not the end (ie The round is in progress)
+            else if (BallScript.m_bHasRoundStarted && !BallScript.m_bHasRoundEnded)
             {
-                if (m_bIsPowerButtonHeld)
+                // Update the shots taken text
+                InGameShotsTakenText.text = "Shots Taken: " + BallScript.m_iShotCount;
+
+                if (BallScript.m_bIsBallMoving)
                 {
-                    // If the power meter becomes full
-                    if (InGamePowerButtonFill.fillAmount > 0.99f)
+                    CameraScript.SetBallDirection(BallObject.transform.forward);
+
+                    // If the velocity of the ball has reduced to a significantly slow amount
+                    if (BallScript.GetBallRigidbody().velocity.sqrMagnitude < 0.7f)
                     {
-                        // Instruct it to fall back towards empty
-                        m_bIsPowerFillFalling = true;
+                        StartCoroutine(EnterShotSelectionDelayed());
                     }
-
-                    // If the power meter is falling
-                    if (m_bIsPowerFillFalling)
+                }
+                else
+                {
+                    if (m_bIsPowerButtonHeld)
                     {
-                        print("Power is falling");
-
-                        // If the power meter has gone below the minimum threshold
-                        if (InGamePowerButtonFill.fillAmount <= m_fMinimumPowerRatio)
+                        // If the power meter becomes full
+                        if (InGamePowerButtonFill.fillAmount > 0.99f)
                         {
-                            // Force the ball to be shot at a minimum amount of power
-                            m_bIsPowerButtonJustReleased = true;
-                            m_bIsPowerButtonHeld = false;
-
+                            // Instruct it to fall back towards empty
+                            m_bIsPowerFillFalling = true;
                         }
-                        // If the power meter is still above the minimum threshold
+
+                        // If the power meter is falling
+                        if (m_bIsPowerFillFalling)
+                        {
+                            print("Power is falling");
+
+                            // If the power meter has gone below the minimum threshold
+                            if (InGamePowerButtonFill.fillAmount <= m_fMinimumPowerRatio)
+                            {
+                                // Force the ball to be shot at a minimum amount of power
+                                m_bIsPowerButtonJustReleased = true;
+                                m_bIsPowerButtonHeld = false;
+
+                            }
+                            // If the power meter is still above the minimum threshold
+                            else
+                            {
+                                // Continue to deduct power at the specified rate
+                                InGamePowerButtonFill.fillAmount -= (m_fPowerBarFillRate * Time.deltaTime);
+                            }
+                        }
+                        // If the power meter is not yet full
                         else
                         {
-                            // Continue to deduct power at the specified rate
-                            InGamePowerButtonFill.fillAmount -= (m_fPowerBarFillRate * Time.deltaTime);
+                            // Continue to add power at the specified rate
+                            InGamePowerButtonFill.fillAmount += (m_fPowerBarFillRate * Time.deltaTime);
                         }
+
                     }
-                    // If the power meter is not yet full
-                    else
+                    // If the power button has just been released
+                    else if (m_bIsPowerButtonJustReleased)
                     {
-                        Debug.Log("Add power");
+                        // Hit the ball at the fill amount (between 0 and 1) ratio of hitting power
+                        float fPowerRatio = Mathf.Clamp(InGamePowerButtonFill.fillAmount, 0.85f, 1.0f);
+                        print("Power ratio: " + fPowerRatio);
+                        BallScript.PerformShot(CameraScript.transform.forward, fPowerRatio);
+                        CameraScript.SetIsPlayerSelectingShot(false);
+                        BallScript.SetProjectedDistance(0.0f);
 
-                        // Continue to add power at the specified rate
-                        InGamePowerButtonFill.fillAmount += (m_fPowerBarFillRate * Time.deltaTime);
+                        // Reset the power meter
+                        m_bIsPowerButtonJustReleased = false;
+                        m_bIsPowerButtonHeld = false;
+                        m_bIsPowerFillFalling = false;
+
+                        // Hide the power meter
+                        InGamePowerButtonFill.fillAmount = 0.0f;
+                        InGamePowerButtonBorder.gameObject.SetActive(false);
                     }
 
-                    // Update the projected distance that the ball will travel so that this can be fed back to the player
-                    //BallScript.SetProjectedDistance(InGamePowerBarFill.fillAmount * 10.0f);
+                    // Find the forward direction of the camera on the horizontal plane
+                    Vector3 CameraForward = CameraScript.GetCamera().transform.forward;
+                    CameraForward.y = 0.0f;
+
+                    // Add this forward vector to the ball position to get the new arrow position
+                    Vector3 ProjectedPos = BallScript.transform.position + (CameraForward * 0.5f);
+
+                    // Set the position of the arrow to the position calculated above, and the rotation to match the Y rotation of the camera
+                    InGameProjectedPathCanvas.transform.position = ProjectedPos;
+                    InGameProjectedDirection.transform.rotation = Quaternion.Euler(new Vector3(0.0f, CameraScript.GetCamera().transform.eulerAngles.y, 0.0f));
                 }
-                // If the power button has just been released
-                else if (m_bIsPowerButtonJustReleased)
-                {
-                    // Hit the ball at the fill amount (between 0 and 1) ratio of hitting power
-                    BallScript.PerformShot(CameraScript.transform.forward, InGamePowerButtonFill.fillAmount);
-                    CameraScript.SetIsPlayerSelectingShot(false);
-                    BallScript.SetProjectedDistance(0.0f);
-
-                    // Reset the power meter
-                    m_bIsPowerButtonJustReleased = false;
-                    m_bIsPowerButtonHeld = false;
-                    m_bIsPowerFillFalling = false;
-
-                    // Hide the power meter
-                    InGamePowerButtonFill.fillAmount = 0.0f;
-                    InGamePowerButtonBorder.gameObject.SetActive(false);
-                }
-
-                Vector3 CameraForward = CameraScript.GetCamera().transform.forward;
-                CameraForward.y = 0.0f;
-                Vector3 ProjectedPos = BallScript.transform.position + (CameraForward * 0.5f);
-                InGameProjectedPathCanvas.transform.position = ProjectedPos;
-                InGameProjectedDirection.transform.rotation = Quaternion.Euler(new Vector3(0.0f, CameraScript.GetCamera().transform.eulerAngles.y, 0.0f));
             }
-
-            
         }
     }
 
@@ -208,10 +231,15 @@ public class S_GameManager : MonoBehaviour
 
         // Hide the starting panel
         StartingPanel.SetActive(false);
+
         InGamePanel.SetActive(true);
         
         BallScript.m_bHasRoundStarted = true;
         m_bHasRoundEnded = false;
+
+        MusicPlayer.Stop();
+        MusicPlayer.clip = MusicInGame;
+        MusicPlayer.Play();
 
         EnterShotSelection();
     }
@@ -220,19 +248,16 @@ public class S_GameManager : MonoBehaviour
     // ie Every time the player completes the level or restarts the level
     public void EndRound()
     {
+        m_bHasRoundEnded = true;
+
         // If the user has not purchased the remove ads option
         if (PlayerPrefs.GetString("ShouldGameDisplayAds") != "No")
         {
             //On every alternate round, display an ad to the screen
             if (m_iRoundCount % 2 == 0)
             {
-                print("Show an ad");
                 ShowAd();
             }
-        }
-        else
-        {
-            print("Shouldn't show ads");
         }
 
         switch (m_iCurrentLevelNumber)
@@ -284,6 +309,10 @@ public class S_GameManager : MonoBehaviour
 
         ProcessPlayerResults();
 
+        MusicPlayer.Stop();
+        MusicPlayer.clip = MusicEndGame;
+        MusicPlayer.Play();
+
         DisplayEndLevelUI();
     }
 
@@ -327,32 +356,42 @@ public class S_GameManager : MonoBehaviour
     void DisplayStartLevelUI()
     {
         StartingPanel.SetActive(true);
+
         EndingPanel.SetActive(false);
+
         InGamePanel.SetActive(false);
     }
 
     void DisplayEndLevelUI()
     {
         EndingPanel.SetActive(true);
+
         StartingPanel.SetActive(false);
+
         InGamePanel.SetActive(false);
     }
 
     void QuitToMainMenu()
     {
+        PlaySFX(SFXButtonBack);
         SceneManager.LoadScene("MainMenu");
     }
 
     void RestartRound()
     {
+        PlaySFX(SFXButtonForward);
+
         EndingPanel.SetActive(false);
+
         StartRound();
     }
 
     private void SetHoleAndParText()
     {
         StartingHoleText.text = "Hole " + m_iCurrentLevelNumber;
+
         StartingParText.text = "Par " + m_iParScores[m_iCurrentLevelNumber - 1];
+
         InGameParText.text = "Par: " + m_iParScores[m_iCurrentLevelNumber - 1];
     }
 
@@ -378,12 +417,7 @@ public class S_GameManager : MonoBehaviour
             int iShotDifference = BallScript.m_iShotCount - m_iParScores[m_iCurrentLevelNumber - 1];
             switch (iShotDifference)
             {
-                case -3:
-                {
-                    EndingShotStatusText.text = "Albatross!";
-                }
-                break;
-
+                case -3: {  EndingShotStatusText.text = "Albatross!";   }   break;
                 case -2:
                 {
                     EndingShotStatusText.text = "Eagle!";
@@ -400,47 +434,26 @@ public class S_GameManager : MonoBehaviour
                 }
                 break;
 
-                case -1:
-                {
-                    EndingShotStatusText.text = "Birdie!";
-                }
-                break;
-
-                case 0:
-                {
-                    EndingShotStatusText.text = "Par!";
-                }
-                break;
-
-                case 1:
-                {
-                    EndingShotStatusText.text = "Bogey";
-                }
-                break;
-
-                case 2:
-                {
-                    EndingShotStatusText.text = "Double Bogey";
-                }
-                break;
-
-                case 3:
-                {
-                    EndingShotStatusText.text = "Triple Bogey";
-                }
-                break;
-
-                default:
-                {
-                    EndingShotStatusText.text = "You need to practice";
-                }
-                break;
+                case -1: {  EndingShotStatusText.text = "Birdie!";  } break;
+                case 0: {   EndingShotStatusText.text = "Par!"; } break;
+                case 1: {   EndingShotStatusText.text = "Bogey";    } break;
+                case 2: {   EndingShotStatusText.text = "Double Bogey"; } break;
+                case 3: {   EndingShotStatusText.text = "Triple Bogey"; } break;
+                default: {  EndingShotStatusText.text = "You need to practice"; } break;
             }
 
             EndingShotCountText.text = "You finished the hole in " + BallScript.m_iShotCount + " shots";
         }
 
+        string sLeaderboardID = "";
+        switch(m_iCurrentLevelNumber)
+        {
+            case 1: { sLeaderboardID = SillyPuttConstants.leaderboard_best_scores_level_1; } break;
+            case 2: { sLeaderboardID = SillyPuttConstants.leaderboard_best_scores_level_2; } break;
+            case 3: { sLeaderboardID = SillyPuttConstants.leaderboard_best_scores_level_3; } break;
+        }
 
+        Social.ReportProgress(sLeaderboardID, BallScript.m_iShotCount, (bool _bSuccess) => { });
     }
 
     private IEnumerator EnterShotSelectionDelayed()
@@ -466,22 +479,59 @@ public class S_GameManager : MonoBehaviour
 
     public void OnPowerButtonPressed()
     {
-        print("Power is pressed");
         m_bIsPowerButtonHeld = true;
     }
 
     public void OnPowerButtonReleased()
     {
-        print("Power is released");
         m_bIsPowerButtonHeld = false;
+
         m_bIsPowerButtonJustReleased = true;
+
         InGameProjectedPathCanvas.gameObject.SetActive(false);
+
+        PlaySFX(SFXHitBall, InGamePowerButtonFill.fillAmount);
     }
 
     public void GoToLevel(int _iLevelNumber)
     {
         string sLevelName = "Level" + _iLevelNumber;
+
         PlayerPrefs.SetInt("CurrentLevel", _iLevelNumber);
+
         SceneManager.LoadScene(sLevelName);
+    }
+
+    public void PlaySFX(AudioClip _ClipToPlay, float _NewPitch = 1.0f)
+    {
+        SFXPlayer.Stop();
+        SFXPlayer.pitch = _NewPitch;
+        SFXPlayer.clip = _ClipToPlay;
+        SFXPlayer.Play();
+    }
+
+    public void ShowLeaderboard()
+    {
+        Social.localUser.Authenticate((bool _bSuccess) =>
+        {
+            if (_bSuccess)
+            {
+                Debug.Log("You've successfully logged in");
+                Social.ShowLeaderboardUI();
+            }
+            else
+            {
+                Debug.Log("Login failed for some reason");
+            }
+        });
+    }
+
+    public void ProcessBallHasEnteredHole()
+    {
+        PlaySFX(SFXBallInHole);
+
+        BallScript.m_bHasBallEnteredHole = false;
+
+        CameraScript.m_bShouldFollowBall = false;
     }
 }

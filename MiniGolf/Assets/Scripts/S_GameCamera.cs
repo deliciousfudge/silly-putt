@@ -5,9 +5,11 @@ using UnityEngine.UI;
 
 public class S_GameCamera : MonoBehaviour
 {
+    [Header("RotateButtons")]
     public Button InGameRotateCameraClockwise;
     public Button InGameRotateCameraCounterClockwise;
 
+    [Header("Camera Configuration")]
     public Vector3 m_v3CameraOffset = new Vector3(0.0f, 0.0f, -5.0f);
     public bool m_bShouldFollowBall = true;
     public float m_fCameraYRotationRate = 2.0f;
@@ -45,14 +47,15 @@ public class S_GameCamera : MonoBehaviour
     public void ResetState()
     {
         m_bShouldFollowBall = true;
+
         m_Camera.transform.rotation = Quaternion.Euler(new Vector3(35.0f, 0.0f, 0.0f));
+
         SetIsPlayerSelectingShot(true);
     }
 
     public void OnRotateClockwiseButtonPressed()
     {
         m_bIsRotateClockwiseHeld = true;
-        print("Clickety clack");
     }
 
     public void OnRotateClockwiseButtonReleased()

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Purchasing;
+using UnityEngine.Events;
 
 public class S_IAPManager : MonoBehaviour, IStoreListener
 {
+    public static string ms_kRemoveAds = "removeads";
+    public UnityEvent OnRemoveAdsPurchased;
+
     private static IStoreController ms_StoreController;
     private static IExtensionProvider ms_StoreExtensionProvider;
-
-    public static string ms_kRemoveAds = "removeads";
 
     // Checks to see if the app can connect to Unity IAP
     // Will continue trying in the background until successfully connected
@@ -79,6 +81,7 @@ public class S_IAPManager : MonoBehaviour, IStoreListener
         {
             print("ProcessPurchase: Purchasing Product");
             PlayerPrefs.SetString("ShouldGameDisplayAds", "No");
+            OnRemoveAdsPurchased.Invoke();
         }
         else
         {

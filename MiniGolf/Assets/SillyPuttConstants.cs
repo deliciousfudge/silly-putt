@@ -26,7 +26,9 @@ public static class SillyPuttConstants
 {
         public const string achievement_flying_high = "CggIybOGnkQQAhAE"; // <GPGSID>
         public const string achievement_moving_on_up = "CggIybOGnkQQAhAA"; // <GPGSID>
-        public const string leaderboard_timescompleted = "CggIybOGnkQQAhAH"; // <GPGSID>
+        public const string leaderboard_best_scores_level_3 = "CggIybOGnkQQAhAJ"; // <GPGSID>
+        public const string leaderboard_best_scores_level_2 = "CggIybOGnkQQAhAI"; // <GPGSID>
+        public const string leaderboard_best_scores_level_1 = "CggIybOGnkQQAhAH"; // <GPGSID>
         public const string achievement_the_end_of_the_road = "CggIybOGnkQQAhAC"; // <GPGSID>
         public const string achievement_high_achiever = "CggIybOGnkQQAhAD"; // <GPGSID>
         public const string achievement_steady_as_she_goes = "CggIybOGnkQQAhAB"; // <GPGSID>

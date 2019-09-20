@@ -33,9 +33,14 @@ public class S_MainMenu : MonoBehaviour
     public Button m_ButtonPurchaseRemoveAds;
     public Text m_TextRemoveAdsDescription;
 
-    // Google Play integration
-    bool m_bIsUserAuthenticated = false;
+    [Header("Audio")]
+    public AudioSource SFXPlayer;
+    public AudioClip SFXButtonForward;
+    public AudioClip SFXButtonBack;
+    public AudioClip SFXPurchaseSuccessful;
 
+    // Google Play integration
+    private bool m_bIsUserAuthenticated = false;
     private S_IAPManager m_IAPManager;
 
     // Start is called before the first frame update
@@ -61,7 +66,7 @@ public class S_MainMenu : MonoBehaviour
             m_TextRemoveAdsDescription.text = "Remove Ads: Unpurchased";
         }
 
-        GoToMainMenu();
+        GoToMainMenu(false);
 
         // Add listener to main menu buttons
         m_ButtonPlay.onClick.AddListener(() => { OpenLevelSelectMenu(); });
@@ -79,7 +84,7 @@ public class S_MainMenu : MonoBehaviour
 
         // Add listener to IAP buttons
         m_ButtonIAPToMainMenu.onClick.AddListener(() => { GoToMainMenu(); });
-        m_ButtonPurchaseRemoveAds.onClick.AddListener(() => { ProcessPurchaseNoAds(); });
+        m_ButtonPurchaseRemoveAds.onClick.AddListener(() => { ProcessPurchaseRemoveAds(); });
 }
 
     // Update is called once per frame
@@ -106,7 +111,8 @@ public class S_MainMenu : MonoBehaviour
 	
 	public void OpenLevelSelectMenu()
 	{
-		print("LevelSelect");
+        PlaySFX(SFXButtonForward);
+
         m_MainMenuContainer.SetActive(false);
         m_LevelSelectContainer.SetActive(true);
         m_IAPContainer.SetActive(false);
@@ -114,12 +120,18 @@ public class S_MainMenu : MonoBehaviour
 	
 	public void ExitGame()
 	{
-        print("Bye everybody!");
+        PlaySFX(SFXButtonForward);
+
 		Application.Quit();
 	}
 
-    public void GoToMainMenu()
+    public void GoToMainMenu(bool _bShouldPlaySound = true)
     {
+        if (_bShouldPlaySound)
+        {
+            PlaySFX(SFXButtonBack);
+        }
+
         m_MainMenuContainer.SetActive(true);
         m_LevelSelectContainer.SetActive(false);
         m_IAPContainer.SetActive(false);
@@ -127,6 +139,8 @@ public class S_MainMenu : MonoBehaviour
 
     public void GoToLevel(int _iLevelNumber)
     {
+        PlaySFX(SFXButtonForward);
+
         string sLevelName = "Level" + _iLevelNumber;
         PlayerPrefs.SetInt("CurrentLevel", _iLevelNumber);
         SceneManager.LoadScene(sLevelName);
@@ -134,6 +148,8 @@ public class S_MainMenu : MonoBehaviour
 
     public void OpenTwitter()
     {
+        PlaySFX(SFXButtonForward);
+
         string sTwitterAddress = "http://twitter.com/intent/tweet";
         string sMessage = "GET YO PUTT ON WITH SILLY PUTT"; // The tweet content to display
         string sAppStoreDescription = "You can find the game at: "; // The title of the game
@@ -149,6 +165,8 @@ public class S_MainMenu : MonoBehaviour
             {
                 Debug.Log("You've successfully logged in");
                 Social.ShowAchievementsUI();
+
+                PlaySFX(SFXButtonForward);
             }
             else
             {
@@ -165,6 +183,8 @@ public class S_MainMenu : MonoBehaviour
             {
                 Debug.Log("You've successfully logged in");
                 Social.ShowLeaderboardUI();
+
+                PlaySFX(SFXButtonForward);
             }
             else
             {
@@ -174,28 +194,42 @@ public class S_MainMenu : MonoBehaviour
     }
     public void OpenIAPMenu()
     {
+        PlaySFX(SFXButtonForward);
+
         m_MainMenuContainer.SetActive(false);
         m_LevelSelectContainer.SetActive(false);
         m_IAPContainer.SetActive(true);
     }
 
-    private void ProcessPurchaseNoAds()
+    private void ProcessPurchaseRemoveAds()
     {
         // If the RemoveAds purchase has not already been made
         if (PlayerPrefs.GetString("ShouldGameDisplayAds") != "No")
         {
-            // Attempt to purchase it
             m_IAPManager.BuyProductID("removeads");
 
-            // If the purchase attempt succeeded
             if (PlayerPrefs.GetString("ShouldGameDisplayAds") == "No")
             {
-                // Disable the option to purchase the consumable
-                m_ButtonPurchaseRemoveAds.interactable = false;
-
-                // Provide feedback to the user that the purchase was successful
-                m_TextRemoveAdsDescription.text = "Remove Ads: Purchased";
+                ProcessRemoveAdsPurchased();
             }
         }
+    }
+
+    public void ProcessRemoveAdsPurchased()
+    {
+        PlaySFX(SFXPurchaseSuccessful);
+
+        // Disable the option to purchase the consumable
+        m_ButtonPurchaseRemoveAds.interactable = false;
+
+        // Provide feedback to the user that the purchase was successful
+        m_TextRemoveAdsDescription.text = "Remove Ads: Purchased";
+    }
+
+    public void PlaySFX(AudioClip _ClipToPlay)
+    {
+        SFXPlayer.Stop();
+        SFXPlayer.clip = _ClipToPlay;
+        SFXPlayer.Play();
     }
 }

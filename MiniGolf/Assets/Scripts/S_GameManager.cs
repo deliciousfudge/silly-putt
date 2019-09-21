@@ -417,35 +417,38 @@ public class S_GameManager : MonoBehaviour
         }
         else
         {
-            int iShotDifference = BallScript.m_iShotCount - m_iParScores[m_iCurrentLevelNumber - 1];
-            switch (iShotDifference)
+            if (m_iCurrentLevelNumber >= 0)
             {
-                case -3: {  EndingShotStatusText.text = "Albatross!";   }   break;
-                case -2:
+                int iShotDifference = BallScript.m_iShotCount - m_iParScores[m_iCurrentLevelNumber - 1];
+                switch (iShotDifference)
                 {
-                    EndingShotStatusText.text = "Eagle!";
+                    case -3: { EndingShotStatusText.text = "Albatross!"; } break;
+                    case -2:
+                        {
+                            EndingShotStatusText.text = "Eagle!";
 
-                    // If the player has not completed the Flying High achievement (For scoring an eagle)
-                    if (PlayerPrefs.GetString("Flying High") != "Unlocked")
-                    {
-                        // Store that the player has completed the achievement
-                        PlayerPrefs.SetString("Flying High", "Unlocked");
+                            // If the player has not completed the Flying High achievement (For scoring an eagle)
+                            if (PlayerPrefs.GetString("Flying High") != "Unlocked")
+                            {
+                                // Store that the player has completed the achievement
+                                PlayerPrefs.SetString("Flying High", "Unlocked");
 
-                        // Tell Google Play that the player has completed the achievement
-                        Social.ReportProgress(SillyPuttConstants.achievement_flying_high, 100, (bool _bSuccess) => { });
-                    }
+                                // Tell Google Play that the player has completed the achievement
+                                Social.ReportProgress(SillyPuttConstants.achievement_flying_high, 100, (bool _bSuccess) => { });
+                            }
+                        }
+                        break;
+
+                    case -1: { EndingShotStatusText.text = "Birdie!"; } break;
+                    case 0: { EndingShotStatusText.text = "Par!"; } break;
+                    case 1: { EndingShotStatusText.text = "Bogey"; } break;
+                    case 2: { EndingShotStatusText.text = "Double Bogey"; } break;
+                    case 3: { EndingShotStatusText.text = "Triple Bogey"; } break;
+                    default: { EndingShotStatusText.text = "You need to practice"; } break;
                 }
-                break;
 
-                case -1: {  EndingShotStatusText.text = "Birdie!";  } break;
-                case 0: {   EndingShotStatusText.text = "Par!"; } break;
-                case 1: {   EndingShotStatusText.text = "Bogey";    } break;
-                case 2: {   EndingShotStatusText.text = "Double Bogey"; } break;
-                case 3: {   EndingShotStatusText.text = "Triple Bogey"; } break;
-                default: {  EndingShotStatusText.text = "You need to practice"; } break;
+                EndingShotCountText.text = "You finished the hole in " + BallScript.m_iShotCount + " shots";
             }
-
-            EndingShotCountText.text = "You finished the hole in " + BallScript.m_iShotCount + " shots";
         }
 
         string sLeaderboardID = "";

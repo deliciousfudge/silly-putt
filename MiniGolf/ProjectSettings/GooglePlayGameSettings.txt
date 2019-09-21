@@ -1,5 +1,5 @@
-lastUpgrade=01001
-proj.pluginVersion=0.10.01
+lastUpgrade=01002
+proj.pluginVersion=0.10.02
 proj.AppId=18316630473
 proj.classDir=Assets
 proj.ConstantsClassName=SillyPuttConstants

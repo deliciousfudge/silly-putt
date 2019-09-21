@@ -184,8 +184,9 @@ public class S_GameManager : MonoBehaviour
                     // If the power button has just been released
                     else if (m_bIsPowerButtonJustReleased)
                     {
-                        // Hit the ball at the fill amount (between 0 and 1) ratio of hitting power
-                        float fPowerRatio = Mathf.Clamp(InGamePowerButtonFill.fillAmount, 0.85f, 1.0f);
+                        // Hit the ball at the fill amount ratio of hitting power
+                        // We also clamp this value so that the shot is not limp, even at the minimum amount of power
+                        float fPowerRatio = Mathf.Clamp(InGamePowerButtonFill.fillAmount, 0.2f, 1.0f);
                         print("Power ratio: " + fPowerRatio);
                         BallScript.PerformShot(CameraScript.transform.forward, fPowerRatio);
                         CameraScript.SetIsPlayerSelectingShot(false);
@@ -203,7 +204,9 @@ public class S_GameManager : MonoBehaviour
 
                     // Find the forward direction of the camera on the horizontal plane
                     Vector3 CameraForward = CameraScript.GetCamera().transform.forward;
-                    CameraForward.y = 0.0f;
+
+                    // Lift this forward direction upward so that the arrow will sit above the course
+                    CameraForward.y = 1.0f;
 
                     // Add this forward vector to the ball position to get the new arrow position
                     Vector3 ProjectedPos = BallScript.transform.position + (CameraForward * 0.5f);
@@ -453,7 +456,7 @@ public class S_GameManager : MonoBehaviour
             case 3: { sLeaderboardID = SillyPuttConstants.leaderboard_best_scores_level_3; } break;
         }
 
-        Social.ReportProgress(sLeaderboardID, BallScript.m_iShotCount, (bool _bSuccess) => { });
+        Social.ReportScore(BallScript.m_iShotCount, sLeaderboardID, (bool _bSuccess) => { });
     }
 
     private IEnumerator EnterShotSelectionDelayed()

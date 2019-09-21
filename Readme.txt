@@ -1,8 +1,12 @@
-- Hit the ball
-- Pass the first level
-- Pass the second level
-- Something with the windmill
-- Loop de loop
+
+Features
+=======
+- Achievements
+	- Hit the ball
+	- Pass the first level
+	- Pass the second level
+	- Something with the windmill
+	- Loop de loop
 
 All game art and icons courtesy of Kenney, unless otherwise stated
 

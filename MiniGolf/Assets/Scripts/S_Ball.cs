@@ -15,7 +15,7 @@ public class S_Ball : MonoBehaviour
     public int m_iShotCount = 0;
     public float m_fMaxSpeed = 20.0f;
 
-    private Rigidbody BallRigidBody;
+    private Rigidbody m_RigidBodyBall;
     private Vector3 m_v3Direction = new Vector3(0.0f, 0.0f, 0.0f);
     private float m_fCurrentSpeed = 0.0f;
     private float m_fProjectedDistance = 0.0f;
@@ -24,7 +24,7 @@ public class S_Ball : MonoBehaviour
     void Start()
     {
         // Set script references
-        BallRigidBody = GetComponent<Rigidbody>();
+        m_RigidBodyBall = GetComponent<Rigidbody>();
     }
 
     public void PerformShot(Vector3 _Direction, float _PowerRatio)
@@ -34,7 +34,7 @@ public class S_Ball : MonoBehaviour
 
         m_fCurrentSpeed = m_fMaxSpeed * _PowerRatio;
 
-        BallRigidBody.AddForceAtPosition(m_v3Direction * m_fCurrentSpeed, BallRigidBody.position, ForceMode.Impulse);
+        m_RigidBodyBall.AddForceAtPosition(m_v3Direction * m_fCurrentSpeed, m_RigidBodyBall.position, ForceMode.Impulse);
 
         // Mark the ball as moving
         m_bIsBallMoving = true;
@@ -49,7 +49,7 @@ public class S_Ball : MonoBehaviour
         {
             RemoveVelocity();
 
-            BallRigidBody.detectCollisions = false;
+            m_RigidBodyBall.detectCollisions = false;
 
             OnBallHasEnteredHole.Invoke();
 
@@ -79,15 +79,15 @@ public class S_Ball : MonoBehaviour
 
     public void RemoveVelocity()
     {
-        BallRigidBody.velocity = Vector3.zero;
-        BallRigidBody.angularVelocity = Vector3.zero;
+        m_RigidBodyBall.velocity = Vector3.zero;
+        m_RigidBodyBall.angularVelocity = Vector3.zero;
 
         m_bIsBallMoving = false;
     }
 
     public Rigidbody GetBallRigidbody()
     {
-        return BallRigidBody;
+        return m_RigidBodyBall;
     }
 
     private IEnumerator MarkEndOfRound()
@@ -100,16 +100,16 @@ public class S_Ball : MonoBehaviour
     {
         if (_bIsColliding)
         {
-            BallRigidBody.detectCollisions = true;
+            m_RigidBodyBall.detectCollisions = true;
         }
         else
         {
-            BallRigidBody.detectCollisions = false;
+            m_RigidBodyBall.detectCollisions = false;
         }
     }
 
     private void ResetPosition()
     {
-        BallRigidBody.transform.position = m_v3StartingPos;
+        m_RigidBodyBall.transform.position = m_v3StartingPos;
     }
 }

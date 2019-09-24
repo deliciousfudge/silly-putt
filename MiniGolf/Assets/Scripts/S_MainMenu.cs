@@ -19,6 +19,7 @@ public class S_MainMenu : MonoBehaviour
     public Button m_ButtonExit;
     public Button m_ButtonTwitter;
     public Button m_ButtonIAP; // In App Purchases
+    public Text m_TextConnectingToGooglePlay;
 
     [Header("Level Select Objects")]
     public GameObject m_LevelSelectContainer;
@@ -34,10 +35,10 @@ public class S_MainMenu : MonoBehaviour
     public Text m_TextRemoveAdsDescription;
 
     [Header("Audio")]
-    public AudioSource SFXPlayer;
-    public AudioClip SFXButtonForward;
-    public AudioClip SFXButtonBack;
-    public AudioClip SFXPurchaseSuccessful;
+    public AudioSource m_SFXPlayer;
+    public AudioClip m_SFXButtonForward;
+    public AudioClip m_SFXButtonBack;
+    public AudioClip m_SFXPurchaseSuccessful;
 
     // Google Play integration
     private bool m_bIsUserAuthenticated = false;
@@ -50,6 +51,8 @@ public class S_MainMenu : MonoBehaviour
 
         PlayGamesPlatform.Activate();
         PlayGamesPlatform.DebugLogEnabled = true;
+
+        DisableGooglePlayButtons();
 
         m_IAPManager = m_IAPContainer.GetComponent<S_IAPManager>();
 
@@ -101,6 +104,12 @@ public class S_MainMenu : MonoBehaviour
                     Debug.Log("You've successfully logged in");
                     m_bIsUserAuthenticated = true;
 
+                    m_TextConnectingToGooglePlay.text = "Connection Successful!";
+
+                    EnableGooglePlayButtons();
+
+                    StartCoroutine(RemoveConnectingText());
+
                     m_IAPManager.InitializePurchasing();
                 }
                 else
@@ -113,7 +122,7 @@ public class S_MainMenu : MonoBehaviour
 	
 	public void OpenLevelSelectMenu()
 	{
-        PlaySFX(SFXButtonForward);
+        PlaySFX(m_SFXButtonForward);
 
         m_MainMenuContainer.SetActive(false);
         m_LevelSelectContainer.SetActive(true);
@@ -122,7 +131,7 @@ public class S_MainMenu : MonoBehaviour
 	
 	public void ExitGame()
 	{
-        PlaySFX(SFXButtonForward);
+        PlaySFX(m_SFXButtonForward);
 
 		Application.Quit();
 	}
@@ -131,7 +140,7 @@ public class S_MainMenu : MonoBehaviour
     {
         if (_bShouldPlaySound)
         {
-            PlaySFX(SFXButtonBack);
+            PlaySFX(m_SFXButtonBack);
         }
 
         m_MainMenuContainer.SetActive(true);
@@ -141,7 +150,7 @@ public class S_MainMenu : MonoBehaviour
 
     public void GoToLevel(int _iLevelNumber)
     {
-        PlaySFX(SFXButtonForward);
+        PlaySFX(m_SFXButtonForward);
 
         string sLevelName = "Level" + _iLevelNumber;
         PlayerPrefs.SetInt("CurrentLevel", _iLevelNumber);
@@ -150,7 +159,7 @@ public class S_MainMenu : MonoBehaviour
 
     public void OpenTwitter()
     {
-        PlaySFX(SFXButtonForward);
+        PlaySFX(m_SFXButtonForward);
 
         string sTwitterAddress = "http://twitter.com/intent/tweet";
         string sMessage = "GET YO PUTT ON WITH SILLY PUTT"; // The tweet content to display
@@ -168,7 +177,7 @@ public class S_MainMenu : MonoBehaviour
                 Debug.Log("You've successfully logged in");
                 Social.ShowAchievementsUI();
 
-                PlaySFX(SFXButtonForward);
+                PlaySFX(m_SFXButtonForward);
             }
             else
             {
@@ -186,7 +195,7 @@ public class S_MainMenu : MonoBehaviour
                 Debug.Log("You've successfully logged in");
                 Social.ShowLeaderboardUI();
 
-                PlaySFX(SFXButtonForward);
+                PlaySFX(m_SFXButtonForward);
             }
             else
             {
@@ -196,7 +205,7 @@ public class S_MainMenu : MonoBehaviour
     }
     public void OpenIAPMenu()
     {
-        PlaySFX(SFXButtonForward);
+        PlaySFX(m_SFXButtonForward);
 
         m_MainMenuContainer.SetActive(false);
         m_LevelSelectContainer.SetActive(false);
@@ -219,7 +228,7 @@ public class S_MainMenu : MonoBehaviour
 
     public void ProcessRemoveAdsPurchased()
     {
-        PlaySFX(SFXPurchaseSuccessful);
+        PlaySFX(m_SFXPurchaseSuccessful);
 
         // Disable the option to purchase the consumable
         m_ButtonPurchaseRemoveAds.interactable = false;
@@ -230,8 +239,28 @@ public class S_MainMenu : MonoBehaviour
 
     public void PlaySFX(AudioClip _ClipToPlay)
     {
-        SFXPlayer.Stop();
-        SFXPlayer.clip = _ClipToPlay;
-        SFXPlayer.Play();
+        m_SFXPlayer.Stop();
+        m_SFXPlayer.clip = _ClipToPlay;
+        m_SFXPlayer.Play();
+    }
+    
+    IEnumerator RemoveConnectingText()
+    {
+        yield return new WaitForSeconds(2.0f);
+        m_TextConnectingToGooglePlay.gameObject.SetActive(false);
+    }
+
+    public void EnableGooglePlayButtons()
+    {
+        m_ButtonAchievements.gameObject.SetActive(true);
+        m_ButtonLeaderboard.gameObject.SetActive(true);
+        m_ButtonIAP.gameObject.SetActive(true);
+    }
+
+    public void DisableGooglePlayButtons()
+    {
+        m_ButtonAchievements.gameObject.SetActive(false);
+        m_ButtonLeaderboard.gameObject.SetActive(false);
+        m_ButtonIAP.gameObject.SetActive(false);
     }
 }

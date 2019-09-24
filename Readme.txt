@@ -18,3 +18,5 @@ Ball Hit: https://freesound.org/people/Gareth_H/sounds/365789/
 Ball In Hole: https://freesound.org/people/AGFX/sounds/20428/
 Button Press: https://freesound.org/people/Bertrof/sounds/131658/'
 Remove Ads Purchase: https://freesound.org/people/CapsLok/sounds/184438/
+
+Icons made by Freepik from www.flaticon.com

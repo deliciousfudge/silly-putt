@@ -1951,6 +1951,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: a368f333a2ccca44dbc37a854cdf4928, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
@@ -2565,14 +2567,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: naturePack_161 (11)
       objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1.16
-      objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.85
@@ -2628,6 +2622,14 @@ PrefabInstance:
     - target: {fileID: 400002, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.16
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
@@ -3473,6 +3475,8 @@ MonoBehaviour:
   InGamePowerButtonBorder: {fileID: 1833510531}
   InGamePowerButton: {fileID: 1687281604}
   InGameProjectedPathCanvas: {fileID: 958107901}
+  InGameRestartButton: {fileID: 2088866238}
+  InGameEndGameButton: {fileID: 2088866237}
   BallObject: {fileID: 1719358303}
   CameraObject: {fileID: 1322600358}
   MusicPlayer: {fileID: 1442464156}
@@ -7915,14 +7919,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: naturePack_161 (16)
       objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -1.16
-      objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.29
@@ -7978,6 +7974,14 @@ PrefabInstance:
     - target: {fileID: 400002, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.16
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f90b393664c8ecd4fa179ccdfffd8dda, type: 3}
@@ -8163,6 +8167,30 @@ PrefabInstance:
 --- !u!114 &2088866236 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6898964377234254376, guid: 08567982780b6a54cbdd8cd564d2f274,
+    type: 3}
+  m_PrefabInstance: {fileID: 2088866235}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2088866237 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3281389252908240181, guid: 08567982780b6a54cbdd8cd564d2f274,
+    type: 3}
+  m_PrefabInstance: {fileID: 2088866235}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2088866238 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5104041933467423839, guid: 08567982780b6a54cbdd8cd564d2f274,
     type: 3}
   m_PrefabInstance: {fileID: 2088866235}
   m_PrefabAsset: {fileID: 0}

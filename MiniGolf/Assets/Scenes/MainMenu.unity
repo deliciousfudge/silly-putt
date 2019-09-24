@@ -754,6 +754,8 @@ MonoBehaviour:
   SFXPlayer: {fileID: 1704957730}
   SFXButtonForward: {fileID: 8300000, guid: 5a284bbb63832f042ba45b776a684bd5, type: 3}
   SFXButtonBack: {fileID: 8300000, guid: 1f0d1bdfc9d662d49a4e40f48d32266f, type: 3}
+  SFXPurchaseSuccessful: {fileID: 8300000, guid: b2849734e46e95140abef2f4b8b1ae2c,
+    type: 3}
 --- !u!1 &541480992
 GameObject:
   m_ObjectHideFlags: 0
@@ -2479,7 +2481,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 407035662}
-        m_MethodName: RemoveAdsPurchased
+        m_MethodName: ProcessRemoveAdsPurchased
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -46,6 +46,8 @@ public class S_MainMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        PlayerPrefs.DeleteAll();
+
         PlayGamesPlatform.Activate();
         PlayGamesPlatform.DebugLogEnabled = true;
 

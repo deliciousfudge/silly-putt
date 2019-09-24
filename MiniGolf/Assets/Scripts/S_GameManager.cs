@@ -30,7 +30,8 @@ public class S_GameManager : MonoBehaviour
     public Image InGamePowerButtonBorder;
     public Button InGamePowerButton;
     public Canvas InGameProjectedPathCanvas;
-
+    public Button InGameRestartButton;
+    public Button InGameEndGameButton;
     private Image InGamePowerButtonFill;
     private Image InGameProjectedDirection;
 
@@ -86,8 +87,10 @@ public class S_GameManager : MonoBehaviour
         EndingLeaderboardButton.onClick.AddListener(() => { ShowLeaderboard(); });
         EndingReplayLevelButton.onClick.AddListener(() => { RestartRound(); });
         EndingQuitToMenuButton.onClick.AddListener(() => { QuitToMainMenu(); });
+        InGameRestartButton.onClick.AddListener(() => { RestartRoundInGame(); });
+        InGameEndGameButton.onClick.AddListener(() => { QuitToMainMenuInGame(); });
 
-        m_iCurrentLevelNumber = PlayerPrefs.GetInt("CurrentLevel");
+    m_iCurrentLevelNumber = PlayerPrefs.GetInt("CurrentLevel");
 
         if (m_iCurrentLevelNumber < m_iParScores.Length)
         {
@@ -249,7 +252,7 @@ public class S_GameManager : MonoBehaviour
 
     // Called at the end of each round
     // ie Every time the player completes the level or restarts the level
-    public void EndRound()
+    public void EndRound(bool _ShouldShowUI = true)
     {
         m_bHasRoundEnded = true;
 
@@ -316,7 +319,10 @@ public class S_GameManager : MonoBehaviour
         MusicPlayer.clip = MusicEndGame;
         MusicPlayer.Play();
 
-        DisplayEndLevelUI();
+        if (_ShouldShowUI)
+        {
+            DisplayEndLevelUI();
+        }
     }
 
     public void ShowAd()
@@ -539,5 +545,17 @@ public class S_GameManager : MonoBehaviour
         BallScript.m_bHasBallEnteredHole = false;
 
         CameraScript.m_bShouldFollowBall = false;
+    }
+
+    public void RestartRoundInGame()
+    {
+        EndRound();
+        RestartRound();
+    }
+
+    public void QuitToMainMenuInGame()
+    {
+        EndRound(false);
+        QuitToMainMenu();
     }
 }

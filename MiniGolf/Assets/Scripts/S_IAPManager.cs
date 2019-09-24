@@ -60,6 +60,7 @@ public class S_IAPManager : MonoBehaviour, IStoreListener
             if (ProductInstance != null && ProductInstance.availableToPurchase)
             {
                 print("BuyProductID: Purchasing product");
+                //PlayerPrefs.SetString("ShouldGameDisplayAds", "No");
                 ms_StoreController.InitiatePurchase(ProductInstance);
             }
             else

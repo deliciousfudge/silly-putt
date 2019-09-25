@@ -49,8 +49,10 @@ public class S_MainMenu : MonoBehaviour
     {
         PlayerPrefs.DeleteAll();
 
-        PlayGamesPlatform.Activate();
-        PlayGamesPlatform.DebugLogEnabled = true;
+#if UNITY_ANDROID
+        //PlayGamesPlatform.Activate();
+        //PlayGamesPlatform.DebugLogEnabled = true;
+#endif
 
         DisableGooglePlayButtons();
 

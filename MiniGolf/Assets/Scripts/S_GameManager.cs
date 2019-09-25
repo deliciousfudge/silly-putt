@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Advertisements;
+#if UNITY_ANDROID
+    using UnityEngine.Advertisements;
+#endif
+
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
@@ -49,7 +52,7 @@ public class S_GameManager : MonoBehaviour
     public AudioClip m_AudioClipSFXHitBall;
     public AudioClip m_AudioClipSFXBallInHole;
 
-    public int[] m_iParScores { get; } = { 3, 5, 7 };
+    public int[] m_iParScores { get; } = { 3, 5, 9 };
     public float m_fPowerBarFillRate = 0.001f;
     public float m_fMinimumPowerRatio = 0.15f;
 
@@ -90,7 +93,7 @@ public class S_GameManager : MonoBehaviour
         m_ButtonInGameRestart.onClick.AddListener(() => { RestartRoundInGame(); });
         m_ButtonInGameEndGame.onClick.AddListener(() => { QuitToMainMenuInGame(); });
 
-    m_iCurrentLevelNumber = PlayerPrefs.GetInt("CurrentLevel");
+        m_iCurrentLevelNumber = PlayerPrefs.GetInt("CurrentLevel");
 
         if (m_iCurrentLevelNumber < m_iParScores.Length)
         {
@@ -252,10 +255,11 @@ public class S_GameManager : MonoBehaviour
 
     // Called at the end of each round
     // ie Every time the player completes the level or restarts the level
-    public void EndRound(bool _ShouldShowUI = true)
+    public void EndRound(bool _ShouldShowUI = true, bool _HasFinishedRound = true)
     {
         m_bHasRoundEnded = true;
 
+#if UNITY_ANDROID
         // If the user has not purchased the remove ads option
         if (PlayerPrefs.GetString("ShouldGameDisplayAds") != "No")
         {
@@ -265,7 +269,7 @@ public class S_GameManager : MonoBehaviour
                 ShowAd();
             }
         }
-
+#endif
         switch (m_iCurrentLevelNumber)
         {
             case 1:
@@ -313,7 +317,10 @@ public class S_GameManager : MonoBehaviour
             default:break;
         }
 
-        ProcessPlayerResults();
+        if (_HasFinishedRound)
+        {
+            ProcessPlayerResults();
+        }
 
         m_AudioPlayerMusic.Stop();
         m_AudioPlayerMusic.clip = m_AudioClipMusicEndGame;
@@ -325,6 +332,7 @@ public class S_GameManager : MonoBehaviour
         }
     }
 
+#if UNITY_ANDROID
     public void ShowAd()
     {
         // Setting video as the placement ID allows the user to skip the ad after 5 seconds
@@ -340,27 +348,29 @@ public class S_GameManager : MonoBehaviour
 
     public void AdViewResult(ShowResult _Result)
     {
-        switch(_Result)
+        switch (_Result)
         {
             case ShowResult.Finished:
-            {
-                print("Player viewed complete ad");
-            }
-            break;
+                {
+                    print("Player viewed complete ad");
+                }
+                break;
 
             case ShowResult.Skipped:
-            {
-                print("Player skipped ad");    
-            }
-            break;
+                {
+                    print("Player skipped ad");
+                }
+                break;
 
             case ShowResult.Failed:
-            {
-                print("Problem showing ad");
-            }
-            break;
+                {
+                    print("Problem showing ad");
+                }
+                break;
         }
     }
+
+#endif
 
     void DisplayStartLevelUI()
     {
@@ -549,13 +559,13 @@ public class S_GameManager : MonoBehaviour
 
     public void RestartRoundInGame()
     {
-        EndRound();
+        EndRound(false, false);
         RestartRound();
     }
 
     public void QuitToMainMenuInGame()
     {
-        EndRound(false);
+        EndRound(false, false);
         QuitToMainMenu();
     }
 }

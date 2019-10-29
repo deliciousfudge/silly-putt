@@ -6,8 +6,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.SocialPlatforms;
 
+#if UNITY_ANDROID
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
+#endif
 
 public class S_MainMenu : MonoBehaviour
 {
@@ -50,8 +52,12 @@ public class S_MainMenu : MonoBehaviour
         PlayerPrefs.DeleteAll();
 
 #if UNITY_ANDROID
-        //PlayGamesPlatform.Activate();
-        //PlayGamesPlatform.DebugLogEnabled = true;
+        PlayGamesPlatform.Activate();
+        PlayGamesPlatform.DebugLogEnabled = true;
+#endif
+
+#if UNITY_STANDALONE_WIN
+        m_TextConnectingToGooglePlay.gameObject.SetActive(false);
 #endif
 
         DisableGooglePlayButtons();
@@ -94,6 +100,7 @@ public class S_MainMenu : MonoBehaviour
         m_ButtonPurchaseRemoveAds.onClick.AddListener(() => { ProcessPurchaseRemoveAds(); });
 }
 
+#if UNITY_ANDROID
     // Update is called once per frame
     void Update()
     {
@@ -121,6 +128,7 @@ public class S_MainMenu : MonoBehaviour
             });
         }
     }
+#endif
 	
 	public void OpenLevelSelectMenu()
 	{
@@ -264,5 +272,7 @@ public class S_MainMenu : MonoBehaviour
         m_ButtonAchievements.gameObject.SetActive(false);
         m_ButtonLeaderboard.gameObject.SetActive(false);
         m_ButtonIAP.gameObject.SetActive(false);
+
+        m_TextConnectingToGooglePlay.gameObject.SetActive(false);
     }
 }

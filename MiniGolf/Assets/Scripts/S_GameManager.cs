@@ -1,9 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_ANDROID
-    using UnityEngine.Advertisements;
-#endif
+using UnityEngine.Advertisements;
 
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -87,7 +85,11 @@ public class S_GameManager : MonoBehaviour
         // Set listeners for UI buttons
         m_ButtonStartingStartLevel.onClick.AddListener(() => { StartRound(); });
         m_ButtonStartingQuitToMenu.onClick.AddListener(() => { QuitToMainMenu(); });
+
+#if UNITY_ANDROID
         m_ButtonEndingLeaderboard.onClick.AddListener(() => { ShowLeaderboard(); });
+#endif
+
         m_ButtonEndingReplayLevel.onClick.AddListener(() => { RestartRound(); });
         m_ButtonEndingQuitToMenu.onClick.AddListener(() => { QuitToMainMenu(); });
         m_ButtonInGameRestart.onClick.AddListener(() => { RestartRoundInGame(); });
@@ -259,7 +261,7 @@ public class S_GameManager : MonoBehaviour
     {
         m_bHasRoundEnded = true;
 
-#if UNITY_ANDROID
+
         // If the user has not purchased the remove ads option
         if (PlayerPrefs.GetString("ShouldGameDisplayAds") != "No")
         {
@@ -269,7 +271,8 @@ public class S_GameManager : MonoBehaviour
                 ShowAd();
             }
         }
-#endif
+
+#if UNITY_ANDROID
         switch (m_iCurrentLevelNumber)
         {
             case 1:
@@ -316,6 +319,7 @@ public class S_GameManager : MonoBehaviour
 
             default:break;
         }
+#endif
 
         if (_HasFinishedRound)
         {
@@ -332,7 +336,6 @@ public class S_GameManager : MonoBehaviour
         }
     }
 
-#if UNITY_ANDROID
     public void ShowAd()
     {
         // Setting video as the placement ID allows the user to skip the ad after 5 seconds
@@ -345,7 +348,6 @@ public class S_GameManager : MonoBehaviour
             Advertisement.Show(ksPlacementID, new ShowOptions() { resultCallback = AdViewResult });
         }
     }
-
     public void AdViewResult(ShowResult _Result)
     {
         switch (_Result)
@@ -369,8 +371,6 @@ public class S_GameManager : MonoBehaviour
                 break;
         }
     }
-
-#endif
 
     void DisplayStartLevelUI()
     {
@@ -449,8 +449,10 @@ public class S_GameManager : MonoBehaviour
                                 // Store that the player has completed the achievement
                                 PlayerPrefs.SetString("Flying High", "Unlocked");
 
+#if UNITY_ANDROID
                                 // Tell Google Play that the player has completed the achievement
                                 Social.ReportProgress(SillyPuttConstants.achievement_flying_high, 100, (bool _bSuccess) => { });
+#endif
                             }
                         }
                         break;
@@ -466,7 +468,7 @@ public class S_GameManager : MonoBehaviour
                 m_TextEndingShotCount.text = "You finished the hole in " + m_ScriptBall.m_iShotCount + " shots";
             }
         }
-
+#if UNITY_ANDROID
         string sLeaderboardID = "";
         switch(m_iCurrentLevelNumber)
         {
@@ -476,6 +478,7 @@ public class S_GameManager : MonoBehaviour
         }
 
         Social.ReportScore(m_ScriptBall.m_iShotCount, sLeaderboardID, (bool _bSuccess) => { });
+#endif
     }
 
     private IEnumerator EnterShotSelectionDelayed()
@@ -532,6 +535,7 @@ public class S_GameManager : MonoBehaviour
         m_AudioPlayerSFX.Play();
     }
 
+#if UNITY_ANDROID
     public void ShowLeaderboard()
     {
         Social.localUser.Authenticate((bool _bSuccess) =>
@@ -547,6 +551,7 @@ public class S_GameManager : MonoBehaviour
             }
         });
     }
+#endif
 
     public void ProcessBallHasEnteredHole()
     {

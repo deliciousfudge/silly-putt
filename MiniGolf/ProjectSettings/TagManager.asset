@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Hole
   - Wall
+  - Bomb
   layers:
   - Default
   - TransparentFX

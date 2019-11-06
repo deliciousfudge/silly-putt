@@ -122,6 +122,12 @@ public class S_GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (m_ScriptBall.m_bHasHitBomb)
+        {
+            RestartRound(false);
+            m_ScriptBall.m_bHasHitBomb = false;
+        }
+            
         // If the ball exists
         if (m_ScriptBall != null)
         {
@@ -229,7 +235,7 @@ public class S_GameManager : MonoBehaviour
 
     // Called at the beginning of each round
     // ie When the player first starts a level or has just restarted the level
-    public void StartRound()
+    public void StartRound(bool _bShouldResetShotCount = true)
     {
         // Increment the round count
         m_iRoundCount = PlayerPrefs.GetInt("RoundCount");
@@ -237,7 +243,7 @@ public class S_GameManager : MonoBehaviour
         PlayerPrefs.SetInt("RoundCount", m_iRoundCount);
 
         // Reset the ball state (set back to original position etc)
-        m_ScriptBall.ResetState();
+        m_ScriptBall.ResetState(_bShouldResetShotCount);
         m_ScriptCamera.ResetState();
 
         // Hide the starting panel
@@ -393,16 +399,17 @@ public class S_GameManager : MonoBehaviour
     void QuitToMainMenu()
     {
         PlaySFX(m_AudioClipSFXButtonBack);
+
         SceneManager.LoadScene("MainMenu");
     }
 
-    void RestartRound()
+    void RestartRound(bool _bShouldResetShotCount = true)
     {
         PlaySFX(m_AudioClipSFXButtonForward);
 
         m_PanelEnding.SetActive(false);
 
-        StartRound();
+        StartRound(_bShouldResetShotCount);
     }
 
     private void SetHoleAndParText()

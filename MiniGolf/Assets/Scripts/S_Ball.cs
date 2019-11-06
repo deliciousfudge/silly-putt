@@ -12,6 +12,7 @@ public class S_Ball : MonoBehaviour
     public bool m_bHasRoundEnded = false;
     public bool m_bIsBallMoving = false;
     public bool m_bHasBallEnteredHole = false;
+    public bool m_bHasHitBomb = false;
     public int m_iShotCount = 0;
     public float m_fMaxSpeed = 20.0f;
 
@@ -57,7 +58,17 @@ public class S_Ball : MonoBehaviour
         }
     }
 
-    public void ResetState()
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Bomb")
+        {
+            collision.gameObject.SetActive(false);
+
+            m_bHasHitBomb = true;
+        }
+    }
+
+    public void ResetState(bool _bShouldResetShotCount = true)
     {
         RemoveVelocity();
 
@@ -65,7 +76,10 @@ public class S_Ball : MonoBehaviour
 
         ResetPosition();
 
-        m_iShotCount = 0;
+        if (_bShouldResetShotCount)
+        {
+            m_iShotCount = 0;
+        }
 
         m_bHasRoundEnded = false;
 

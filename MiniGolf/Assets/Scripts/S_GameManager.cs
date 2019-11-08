@@ -39,6 +39,7 @@ public class S_GameManager : MonoBehaviour
     [Header("Gameplay Objects")]
     public GameObject m_ObjectBall;
     public GameObject m_ObjectCamera;
+    public GameObject[] Bombs;
 
     [Header("Audio")]
     public AudioSource m_AudioPlayerMusic;
@@ -257,6 +258,11 @@ public class S_GameManager : MonoBehaviour
         m_AudioPlayerMusic.Stop();
         m_AudioPlayerMusic.clip = m_AudioClipMusicInGame;
         m_AudioPlayerMusic.Play();
+
+        foreach (GameObject Bomb in Bombs)
+        {
+            Bomb.SetActive(true);
+        }
 
         EnterShotSelection();
     }
@@ -572,6 +578,7 @@ public class S_GameManager : MonoBehaviour
     public void RestartRoundInGame()
     {
         EndRound(false, false);
+
         RestartRound();
     }
 

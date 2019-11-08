@@ -930,7 +930,7 @@ PrefabInstance:
     - target: {fileID: 516295139780796929, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.24
+      value: 0.279
       objectReference: {fileID: 0}
     - target: {fileID: 516295139780796929, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
         type: 3}
@@ -975,6 +975,11 @@ PrefabInstance:
     - target: {fileID: 516295139780796929, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4778472583097780510, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
+        type: 3}
+      propertyPath: m_bCanMove
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -1155,6 +1160,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: a368f333a2ccca44dbc37a854cdf4928, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
@@ -1988,6 +1995,7 @@ MonoBehaviour:
   m_ButtonInGameEndGame: {fileID: 18873390}
   m_ObjectBall: {fileID: 1924814693}
   m_ObjectCamera: {fileID: 1322600358}
+  Bombs: []
   m_AudioPlayerMusic: {fileID: 1326229016}
   m_AudioClipMusicInGame: {fileID: 8300000, guid: a0ea9577570158f4bad474c1be21bac3,
     type: 3}
@@ -3081,7 +3089,7 @@ PrefabInstance:
     - target: {fileID: 516295139780796929, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.24
+      value: 0.271
       objectReference: {fileID: 0}
     - target: {fileID: 516295139780796929, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
         type: 3}
@@ -3127,6 +3135,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4778472583097780510, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
+        type: 3}
+      propertyPath: m_fMovementSpeed
+      value: 0.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 44eef8ae0aed6364b9eb5bb4074d43b1, type: 3}
@@ -4074,7 +4087,7 @@ PrefabInstance:
     - target: {fileID: 516295139780796929, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.34
+      value: 0.288
       objectReference: {fileID: 0}
     - target: {fileID: 516295139780796929, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
         type: 3}
@@ -4120,6 +4133,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4778472583097780505, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4778472583097780510, guid: 44eef8ae0aed6364b9eb5bb4074d43b1,
+        type: 3}
+      propertyPath: m_fMovementSpeed
+      value: 0.15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 44eef8ae0aed6364b9eb5bb4074d43b1, type: 3}
@@ -5172,6 +5195,8 @@ MonoBehaviour:
   OnBallHasEnteredHole:
     m_PersistentCalls:
       m_Calls: []
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
   m_v3StartingPos: {x: -1.5, y: 0.45, z: -10}
   m_bHasRoundStarted: 0
   m_bHasRoundEnded: 0

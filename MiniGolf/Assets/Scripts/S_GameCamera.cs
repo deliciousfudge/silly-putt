@@ -8,6 +8,7 @@ public class S_GameCamera : MonoBehaviour
     [Header("RotateButtons")]
     public Button m_ButtonInGameRotateCameraClockwise;
     public Button m_ButtonInGameRotateCameraCounterClockwise;
+    public Image m_ImageInGameRotateBackground;
 
     [Header("Camera Configuration")]
     public Vector3 m_v3CameraOffset = new Vector3(0.0f, 0.0f, -5.0f);
@@ -131,12 +132,14 @@ public class S_GameCamera : MonoBehaviour
     {
         m_ButtonInGameRotateCameraClockwise.gameObject.SetActive(false);
         m_ButtonInGameRotateCameraCounterClockwise.gameObject.SetActive(false);
+        m_ImageInGameRotateBackground.gameObject.SetActive(false);
     }
 
     public void EnableRotation()
     {
         m_ButtonInGameRotateCameraClockwise.gameObject.SetActive(true);
         m_ButtonInGameRotateCameraCounterClockwise.gameObject.SetActive(true);
+        m_ImageInGameRotateBackground.gameObject.SetActive(true);
     }
 
     public Camera GetCamera()

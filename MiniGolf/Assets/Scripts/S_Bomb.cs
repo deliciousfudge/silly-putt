@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bomb : MonoBehaviour
+public class S_Bomb : MonoBehaviour
 {
     public float m_fMovementSpeed = 0.1f;
     public bool m_bCanMove = true;
 
     private Vector3 m_v3MovementDir;
+    private bool m_bHasBeenBlownUp = false;
 
     // Start is called before the first frame update
     void Start()
@@ -33,21 +34,21 @@ public class Bomb : MonoBehaviour
         gameObject.transform.position += m_v3MovementDir * m_fMovementSpeed;
     }
 
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.tag == "Wall")
-    //    {
-    //        print("Ah my face");
-    //        m_v3MovementDir *= -1.0f;
-    //    }
-    //}
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Wall")
         {
-            print("Ah my face");
             m_v3MovementDir *= -1.0f;
         }
+    }
+
+    public bool GetHasBeenBlownUp()
+    {
+        return m_bHasBeenBlownUp;
+    }
+
+    public void SetHasBeenBlownUp(bool _bHasBeenBlownUp)
+    {
+        m_bHasBeenBlownUp = _bHasBeenBlownUp;
     }
 }

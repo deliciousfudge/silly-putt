@@ -66,6 +66,7 @@ public class S_GameManager : MonoBehaviour
     private S_Ball m_ScriptBall;
     private S_GameCamera m_ScriptCamera;
 
+
     private void Awake()
     {
         // Make the game manager persistent
@@ -115,6 +116,11 @@ public class S_GameManager : MonoBehaviour
         m_AudioPlayerMusic.Play();
 
         m_AudioPlayerSFX.loop = false;
+
+        foreach (GameObject Bomb in Bombs)
+        {
+            Bomb.GetComponent<S_Bomb>().SetHasBeenBlownUp(false);
+        }
 
         // Display the starting UI
         DisplayStartLevelUI();
@@ -261,7 +267,10 @@ public class S_GameManager : MonoBehaviour
 
         foreach (GameObject Bomb in Bombs)
         {
-            Bomb.SetActive(true);
+            if (Bomb.GetComponent<S_Bomb>().GetHasBeenBlownUp() == false)
+            {
+                Bomb.SetActive(true);
+            }
         }
 
         EnterShotSelection();

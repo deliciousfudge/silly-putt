@@ -56,13 +56,11 @@ public class S_Ball : MonoBehaviour
 
             StartCoroutine(MarkEndOfRound());
         }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == "Bomb")
+        else if (other.gameObject.tag == "Bomb")
         {
-            collision.gameObject.SetActive(false);
+            other.gameObject.SetActive(false);
+
+            other.GetComponent<S_Bomb>().SetHasBeenBlownUp(true);
 
             m_bHasHitBomb = true;
         }

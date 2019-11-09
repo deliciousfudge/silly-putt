@@ -94,7 +94,7 @@ public class S_GameManager : MonoBehaviour
 
         m_ButtonEndingReplayLevel.onClick.AddListener(() => { RestartRound(); });
         m_ButtonEndingQuitToMenu.onClick.AddListener(() => { QuitToMainMenu(); });
-        m_ButtonInGameRestart.onClick.AddListener(() => { RestartRoundInGame(); });
+        m_ButtonInGameRestart.onClick.AddListener(() => { ProcessPlayerPressingRestartButton(); });
         m_ButtonInGameEndGame.onClick.AddListener(() => { QuitToMainMenuInGame(); });
 
         m_iCurrentLevelNumber = PlayerPrefs.GetInt("CurrentLevel");
@@ -116,11 +116,6 @@ public class S_GameManager : MonoBehaviour
         m_AudioPlayerMusic.Play();
 
         m_AudioPlayerSFX.loop = false;
-
-        foreach (GameObject Bomb in Bombs)
-        {
-            Bomb.GetComponent<S_Bomb>().SetHasBeenBlownUp(false);
-        }
 
         // Display the starting UI
         DisplayStartLevelUI();
@@ -207,7 +202,7 @@ public class S_GameManager : MonoBehaviour
                     {
                         // Hit the ball at the fill amount ratio of hitting power
                         // We also clamp this value so that the shot is not limp, even at the minimum amount of power
-                        float fPowerRatio = Mathf.Clamp(m_ImageInGamePowerButtonFill.fillAmount, 0.2f, 1.0f);
+                        float fPowerRatio = Mathf.Clamp(m_ImageInGamePowerButtonFill.fillAmount, 0.27f, 1.0f);
                         print("Power ratio: " + fPowerRatio);
                         m_ScriptBall.PerformShot(m_ScriptCamera.transform.forward, fPowerRatio);
                         m_ScriptCamera.SetIsPlayerSelectingShot(false);
@@ -242,7 +237,7 @@ public class S_GameManager : MonoBehaviour
 
     // Called at the beginning of each round
     // ie When the player first starts a level or has just restarted the level
-    public void StartRound(bool _bShouldResetShotCount = true)
+    public void StartRound(bool _bShouldResetShotCount = true, bool _bPlayerPressedRestartButton = false)
     {
         // Increment the round count
         m_iRoundCount = PlayerPrefs.GetInt("RoundCount");
@@ -265,13 +260,25 @@ public class S_GameManager : MonoBehaviour
         m_AudioPlayerMusic.clip = m_AudioClipMusicInGame;
         m_AudioPlayerMusic.Play();
 
-        foreach (GameObject Bomb in Bombs)
+        if (_bPlayerPressedRestartButton)
         {
-            if (Bomb.GetComponent<S_Bomb>().GetHasBeenBlownUp() == false)
+            foreach (GameObject Bomb in Bombs)
             {
-                Bomb.SetActive(true);
+                Bomb.GetComponent<S_Bomb>().SetHasBeenBlownUp(false);
+                Bomb.gameObject.SetActive(true);
             }
         }
+        else
+        {
+            foreach (GameObject Bomb in Bombs)
+            {
+                if (Bomb.GetComponent<S_Bomb>().GetHasBeenBlownUp() == false)
+                {
+                    Bomb.SetActive(true);
+                }
+            }
+        }
+
 
         EnterShotSelection();
     }
@@ -418,13 +425,13 @@ public class S_GameManager : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    void RestartRound(bool _bShouldResetShotCount = true)
+    void RestartRound(bool _bShouldResetShotCount = true, bool _bPlayerPressedResetButton = false)
     {
         PlaySFX(m_AudioClipSFXButtonForward);
 
         m_PanelEnding.SetActive(false);
 
-        StartRound(_bShouldResetShotCount);
+        StartRound(_bShouldResetShotCount, _bPlayerPressedResetButton);
     }
 
     private void SetHoleAndParText()
@@ -449,8 +456,8 @@ public class S_GameManager : MonoBehaviour
                 // Store that the player has completed the achievement
                 PlayerPrefs.SetString("High Achiever", "Unlocked");
 
-                // Tell Google Play that the player has completed the achievement
-                Social.ReportProgress(SillyPuttConstants.achievement_high_achiever, 100, (bool _bSuccess) => { });
+                //// Tell Google Play that the player has completed the achievement
+                //Social.ReportProgress(SillyPuttConstants.achievement_high_achiever, 100, (bool _bSuccess) => { });
             }
         }
         else
@@ -584,11 +591,11 @@ public class S_GameManager : MonoBehaviour
         m_ScriptCamera.m_bShouldFollowBall = false;
     }
 
-    public void RestartRoundInGame()
+    public void ProcessPlayerPressingRestartButton()
     {
         EndRound(false, false);
 
-        RestartRound();
+        RestartRound(true, true);
     }
 
     public void QuitToMainMenuInGame()

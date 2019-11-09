@@ -3571,7 +3571,7 @@ PrefabInstance:
     - target: {fileID: 9165732131720799046, guid: 7404d605712d341468eaa47a4c343607,
         type: 3}
       propertyPath: m_fMaxSpeed
-      value: 600
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 9165732131720799048, guid: 7404d605712d341468eaa47a4c343607,
         type: 3}
@@ -3581,12 +3581,12 @@ PrefabInstance:
     - target: {fileID: 9165732131720799048, guid: 7404d605712d341468eaa47a4c343607,
         type: 3}
       propertyPath: m_Drag
-      value: 0.2
+      value: 0.04
       objectReference: {fileID: 0}
     - target: {fileID: 9165732131720799048, guid: 7404d605712d341468eaa47a4c343607,
         type: 3}
       propertyPath: m_AngularDrag
-      value: 0.5
+      value: 0.1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7404d605712d341468eaa47a4c343607, type: 3}
@@ -9085,11 +9085,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: UICanvas
       objectReference: {fileID: 0}
-    - target: {fileID: 2083254259498429000, guid: 08567982780b6a54cbdd8cd564d2f274,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2083254260728077100, guid: 08567982780b6a54cbdd8cd564d2f274,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9264,6 +9259,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: InGameRotateCounterClockwise
+      objectReference: {fileID: 0}
+    - target: {fileID: 2083254259498429000, guid: 08567982780b6a54cbdd8cd564d2f274,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08567982780b6a54cbdd8cd564d2f274, type: 3}

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7769689520558102489}
   - component: {fileID: 4298654003877067338}
   - component: {fileID: 6998589188423071276}
+  - component: {fileID: 7929829181451740948}
   m_Layer: 0
   m_Name: WindmillBlade1
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 560273675399626401}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 3, z: 0.15}
+  m_LocalScale: {x: 0.3, y: 3.4, z: 0.15}
   m_Children: []
   m_Father: {fileID: 1218478670929057622}
   m_RootOrder: 0
@@ -92,6 +93,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &7929829181451740948
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 560273675399626401}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &667798810897772765
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,6 +353,7 @@ GameObject:
   - component: {fileID: 489693737923616594}
   - component: {fileID: 7180691671372443753}
   - component: {fileID: 7114807598192303578}
+  - component: {fileID: 5999830838741409623}
   m_Layer: 0
   m_Name: WindmillBlade2
   m_TagString: Untagged
@@ -352,7 +370,7 @@ Transform:
   m_GameObject: {fileID: 7810288002600428834}
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 3, z: 0.15}
+  m_LocalScale: {x: 0.3, y: 3.4, z: 0.15}
   m_Children: []
   m_Father: {fileID: 1218478670929057622}
   m_RootOrder: 1
@@ -416,3 +434,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &5999830838741409623
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7810288002600428834}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
